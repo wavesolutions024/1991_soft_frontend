@@ -29,17 +29,17 @@ const Dashboard = () => {
             <span>+2.0% last month</span>
           </article>
           <article className="stat-card violet">
-            <p>Active Clients</p>
+            <p>Today’s Appointments</p>
             <h2>12</h2>
             <span>+1.0% last month</span>
           </article>
           <article className="stat-card orange">
-            <p>Today’s Appointments</p>
+            <p>Total Enquires</p>
             <h2>36</h2>
             <span>+4.0% last month</span>
           </article>
           <article className="stat-card pink">
-            <p>Total Artist</p>
+            <p>Total Consultants</p>
             <h2>142%</h2>
             <span>+12% last month</span>
           </article>
