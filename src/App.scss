@@ -1,0 +1,37 @@
+:root {
+  --bg: #081617;
+  --surface: rgba(17, 37, 47, 0.9);
+  --surface-strong: rgba(16, 34, 44, 0.98);
+  --surface-soft: rgba(25, 58, 73, 0.85);
+  --text-primary: #e8f1f4;
+  --text-muted: #8ba3ae;
+  --border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  --radius: 24px;
+  --max-width: 1320px;
+  --transition: all 0.3s ease;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #0e3c52, #081617 40%);
+  color: var(--text-primary);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  min-height: 100vh;
+}

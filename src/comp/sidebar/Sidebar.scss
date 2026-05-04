@@ -1,0 +1,75 @@
+.sidebar {
+  background: rgba(10, 24, 34, 0.98);
+  border-right: 1px solid var(--border);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  height: 100%;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  .brand-icon {
+    background: linear-gradient(135deg, #24b5ff, #5b3ee6);
+    border-radius: 10px;
+    padding: 5px;
+
+    img {
+      width: 35px;
+      aspect-ratio: 1;
+      filter: brightness(0) invert(1);
+    }
+  }
+}
+
+.brand p,
+.brand small {
+  line-height: 1.1;
+}
+
+.brand p {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.brand small {
+  color: var(--text-muted);
+}
+
+.nav-links {
+  display: grid;
+  gap: 12px;
+}
+
+.nav-links a {
+  width: 100%;
+  text-align: left;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 16px;
+  color: var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none ;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.logout {
+  margin-top: auto;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+}
