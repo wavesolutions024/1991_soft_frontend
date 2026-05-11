@@ -1,0 +1,78 @@
+.login_parent {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: radial-gradient(circle at top left, rgba(14, 60, 82, 0.4), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(2, 157, 228, 0.12), transparent 25%);
+}
+
+.login_cont {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 36px 32px;
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  background: rgba(16, 34, 44, 0.98);
+  box-shadow: var(--shadow);
+}
+
+.login_cont h1 {
+  color: var(--text-primary);
+  font-size: 2rem;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.field label {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+
+.field input::placeholder {
+  color: var(--text-muted);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: rgba(36, 181, 255, 0.8);
+  box-shadow: 0 0 0 6px rgba(36, 181, 255, 0.12);
+}
+
+.login_cont button {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: 16px;
+  background: #24b5ff;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.login_cont button:hover {
+  transform: translateY(-1px);
+  background: #1ca0d6;
+}

@@ -32,9 +32,17 @@ const Sidebar = () => {
             Appointment Booking
           </Link>
 
-          <Link to="/artists">Artist Management</Link>
-          <Link to="/artists">Artists</Link>
-          <Link to="/consultants">Consultant</Link>
+          <Link to="/artist-management" className={location.pathname === "/artist-management" ? "active" : ""}>
+            Artist Management
+          </Link>
+
+          <Link to="/artists" className={location.pathname === "/artists" ? "active" : ""}>
+            Artists
+          </Link>
+
+          <Link to="/consultants" className={location.pathname === "/consultants" ? "active" : ""}>
+            Consultant Form
+          </Link>
         </nav>
 
         <button className="logout">Log Out</button>

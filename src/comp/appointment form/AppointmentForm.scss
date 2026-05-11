@@ -315,3 +315,118 @@
     text-decoration: underline;
   }
 }
+
+.table-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.add-client-btn {
+  min-height: 48px;
+  padding: 0 26px;
+  border: none;
+  border-radius: 16px;
+  background: #24b5ff;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.add-client-btn:hover {
+  background: #1ca0d6;
+}
+
+.appointment-table-wrapper {
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+.appointment-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.appointment-table th,
+.appointment-table td {
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.appointment-table th {
+  text-align: left;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.appointment-table td {
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.appointment-table tr:last-child td {
+  border-bottom: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 20;
+}
+
+.modal-content {
+  width: min(100%, 960px);
+  max-height: min(100vh - 48px, 92vh);
+  overflow-y: auto;
+  background: rgba(16, 34, 44, 0.98);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 32px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 22px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 768px) {
+  .table-page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .add-client-btn {
+    width: 100%;
+  }
+}

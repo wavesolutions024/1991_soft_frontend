@@ -35,3 +35,7 @@ input {
   grid-template-columns: 260px minmax(0, 1fr);
   min-height: 100vh;
 }
+
+.app.login-layout {
+  grid-template-columns: 1fr;
+}
