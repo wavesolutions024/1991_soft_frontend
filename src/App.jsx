@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import {  Route, Routes, useLocation } from "react-router-dom";
 import "./App.scss";
 import Sidebar from "./comp/sidebar/Sidebar";
 import Dashboard from "./comp/dashboard/Dashboard";
@@ -10,7 +10,7 @@ import ConsultantForm from "./comp/consultant form/ConsultantForm";
 import Login from "./pages/login/Login";
 
 function App() {
-  const AppContent = () => {
+
     const location = useLocation();
     const isLoginPage = location.pathname === '/login';
 
@@ -30,11 +30,7 @@ function App() {
     );
   };
 
-  return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
-  );
-}
+
+
 
 export default App;

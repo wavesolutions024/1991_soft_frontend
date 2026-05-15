@@ -31,6 +31,27 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  
+
+  small{
+    color: red;
+  }
+
+  .input{
+    position: relative;
+
+    .eye_btn{
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 3%;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+  }
 }
 
 .field label {
