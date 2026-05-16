@@ -1,4 +1,4 @@
-import React from "react";
+
 import "./Dashboard.scss";
 import { IoNotificationsOutline } from "react-icons/io5";
 

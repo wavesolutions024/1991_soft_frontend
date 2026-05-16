@@ -1,131 +1,136 @@
-import React, { useState } from 'react'
-import './ClientForm.scss'
+import { useEffect, useState } from "react";
+import "./ClientForm.scss";
+import { api } from "../../Api";
 
 const initialFormData = {
-  fullName: '',
-  phone: '',
-  email: '',
-  instagram: '',
-  dob: '',
-  gender: '',
-  address: '',
-  allergies: '',
-  consent: false,
-  notes: '',
-  consentFile: null,
-}
+  name: "",
+  email: "",
+  mobileno: "",
+  gender: "",
+  address: "",
+  dob: "",
+  tattoodetails: "",
+  inch: "",
+  price: "",
+};
 
 const sampleClients = [
   {
     id: 1,
-    fullName: 'John Doe',
-    phone: '+1 (555) 000-0000',
-    email: 'john@example.com',
-    instagram: '@johndoe',
-    dob: '1990-02-18',
-    gender: 'Male',
+    fullName: "John Doe",
+    phone: "+1 (555) 000-0000",
+    email: "john@example.com",
+    instagram: "@johndoe",
+    dob: "1990-02-18",
+    gender: "Male",
   },
   {
     id: 2,
-    fullName: 'Maya Chen',
-    phone: '+1 (555) 333-1234',
-    email: 'maya@example.com',
-    instagram: '@mayart',
-    dob: '1992-08-09',
-    gender: 'Female',
+    fullName: "Maya Chen",
+    phone: "+1 (555) 333-1234",
+    email: "maya@example.com",
+    instagram: "@mayart",
+    dob: "1992-08-09",
+    gender: "Female",
   },
   {
     id: 3,
-    fullName: 'Luna Garcia',
-    phone: '+1 (555) 777-7777',
-    email: 'luna@example.com',
-    instagram: '@luna_ink',
-    dob: '1988-12-30',
-    gender: 'Female',
+    fullName: "Luna Garcia",
+    phone: "+1 (555) 777-7777",
+    email: "luna@example.com",
+    instagram: "@luna_ink",
+    dob: "1988-12-30",
+    gender: "Female",
   },
-]
+];
 
 const ClientForm = () => {
-  const [clients, setClients] = useState(sampleClients)
-  const [showModal, setShowModal] = useState(false)
-  const [formData, setFormData] = useState(initialFormData)
-  const [submitted, setSubmitted] = useState(false)
-  const [fileSelected, setFileSelected] = useState(false)
+  const [tattooImage, setTattooImage] = useState(null);
+  // const [clients, setClients] = useState(sampleClients)
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState(initialFormData);
+  const [submitted, setSubmitted] = useState(false);
+  const [fileSelected, setFileSelected] = useState(false);
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setFormData(prev => ({
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }))
-  }
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
-    setFormData(prev => ({
-      ...prev,
-      consentFile: file
-    }))
-    setFileSelected(!!file)
-  }
+    const file = e.target.files[0];
+    setTattooImage(file);
+    setFileSelected(!!file);
+  };
 
   const handleReset = () => {
-    setFormData(initialFormData)
-    setFileSelected(false)
-    setSubmitted(false)
-  }
+    setFormData(initialFormData);
+    setFileSelected(false);
+    setSubmitted(false);
+  };
 
   const openModal = () => {
-    handleReset()
-    setShowModal(true)
-  }
+    handleReset();
+    localStorage.setItem("modal", true);
+
+    setShowModal(true);
+  };
 
   const closeModal = () => {
-    setShowModal(false)
-  }
+    setShowModal(false);
+    localStorage.removeItem("modal");
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const modal = localStorage.getItem("modal");
 
-    if (!formData.fullName || !formData.phone || !formData.email || !formData.instagram || !formData.dob) {
-      alert('Please fill in all required fields')
-      return
+  useEffect(() => {
+    if (modal) {
+      setShowModal(true);
     }
+  }, [modal]);
 
-    if (!formData.consent) {
-      alert('Please accept the consent form')
-      return
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formdata = new FormData();
+
+      formdata.append("clients", JSON.stringify(formData));
+      formdata.append("tattooImage", tattooImage);
+      const response = await api.post("api/client/add", formdata, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(response);
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    const newClient = {
-      id: Date.now(),
-      fullName: formData.fullName,
-      phone: formData.phone,
-      email: formData.email,
-      instagram: formData.instagram,
-      dob: formData.dob,
-      gender: formData.gender || 'Not specified',
-    }
-
-    setClients(prev => [newClient, ...prev])
-    setShowModal(false)
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 2800)
-  }
+  console.log(tattooImage, "tattooImage");
 
   return (
     <div className="client-form-container">
       <div className="table-page-header">
         <div>
           <h1>Client Management</h1>
-          <p>Review the client directory here. Click “Add New Client” to open the registration form.</p>
+          <p>
+            Review the client directory here. Click “Add New Client” to open the
+            registration form.
+          </p>
         </div>
         <button className="add-client-btn" type="button" onClick={openModal}>
           Add New Client
         </button>
       </div>
 
-      {submitted && <div className="success-message">✓ Client added successfully!</div>}
+      {submitted && (
+        <div className="success-message">✓ Client added successfully!</div>
+      )}
 
       <div className="client-table-wrapper">
         <table className="client-table">
@@ -140,7 +145,7 @@ const ClientForm = () => {
             </tr>
           </thead>
           <tbody>
-            {clients.map(client => (
+            {sampleClients.map((client) => (
               <tr key={client.id}>
                 <td>{client.fullName}</td>
                 <td>{client.phone}</td>
@@ -166,7 +171,11 @@ const ClientForm = () => {
               <p>Please fill in your information to register a new client.</p>
             </div>
 
-            {submitted && <div className="success-message">✓ Form submitted successfully!</div>}
+            {submitted && (
+              <div className="success-message">
+                ✓ Form submitted successfully!
+              </div>
+            )}
 
             <form onSubmit={handleSubmit}>
               <div className="form-section">
@@ -180,9 +189,9 @@ const ClientForm = () => {
                     </label>
                     <input
                       type="text"
-                      name="fullName"
+                      name="name"
                       placeholder="John Doe"
-                      value={formData.fullName}
+                      value={formData.name}
                       onChange={handleInputChange}
                       required
                     />
@@ -193,10 +202,10 @@ const ClientForm = () => {
                       <span className="required">*</span>
                     </label>
                     <input
-                      type="tel"
-                      name="phone"
+                      type="number"
+                      name="mobileno"
                       placeholder="+1 (555) 000-0000"
-                      value={formData.phone}
+                      value={formData.mobileno}
                       onChange={handleInputChange}
                       required
                     />
@@ -214,21 +223,6 @@ const ClientForm = () => {
                       name="email"
                       placeholder="john@example.com"
                       value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>
-                      Instagram Handle
-                      <span className="required">*</span>
-                      <span className="warning">⚠️</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="instagram"
-                      placeholder="@username"
-                      value={formData.instagram}
                       onChange={handleInputChange}
                       required
                     />
@@ -263,11 +257,18 @@ const ClientForm = () => {
                       value={formData.gender}
                       onChange={handleInputChange}
                     >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                      <option value="prefer-not">Prefer not to say</option>
+                      <option value="" style={{ color: "black" }}>
+                        Select Gender
+                      </option>
+                      <option value="Male" style={{ color: "black" }}>
+                        Male
+                      </option>
+                      <option value="Female" style={{ color: "black" }}>
+                        Female
+                      </option>
+                      <option value="Other" style={{ color: "black" }}>
+                        Other
+                      </option>
                     </select>
                   </div>
                 </div>
@@ -290,83 +291,85 @@ const ClientForm = () => {
               </div>
 
               <div className="form-section">
-                <h2 className="section-title">Health Information</h2>
+                <h2 className="section-title">Tattoo Information</h2>
 
                 <div className="form-row full">
                   <div className="form-group">
-                    <label>
-                      Allergies / Skin Conditions
-                      <span className="warning">⚠️</span>
-                    </label>
-                    <textarea
-                      name="allergies"
-                      placeholder="Please list any allergies or skin conditions..."
-                      value={formData.allergies}
+                    <label>Tattoo Details</label>
+                    <input
+                      type="text"
+                      name="Tattoo Details"
+                      placeholder="123 Main Street, City, State, ZIP"
+                      value={formData.address}
                       onChange={handleInputChange}
-                    ></textarea>
+                    />
                   </div>
                 </div>
               </div>
 
               <div className="form-section">
-                <h2 className="section-title">Consent & Documentation</h2>
+                <h2 className="section-title">Tattoo Image</h2>
 
                 <div className="form-row full">
                   <div className="form-group">
                     <label>Upload Consent Form</label>
                     <div className="file-upload">
-                      <label htmlFor="consent-file" className={fileSelected ? 'file-selected' : ''}>
-                        {fileSelected ? '✓ File Selected' : '📎 Upload Consent Form'}
+                      <label
+                        htmlFor="consent-file"
+                        className={fileSelected ? "file-selected" : ""}
+                      >
+                        {fileSelected
+                          ? "✓ File Selected"
+                          : "📎 Upload Tattoo Image"}
                       </label>
                       <input
                         type="file"
                         id="consent-file"
-                        name="consentFile"
+                        name="tattooImage"
                         onChange={handleFileChange}
                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                       />
-                      {fileSelected && formData.consentFile && (
-                        <div className="file-name">{formData.consentFile.name}</div>
+                      {fileSelected && tattooImage && (
+                        <div className="file-name">{tattooImage.name}</div>
                       )}
                     </div>
-                  </div>
-                </div>
-
-                <div className="form-row full">
-                  <div className="checkbox-group">
-                    <input
-                      type="checkbox"
-                      id="consent-check"
-                      name="consent"
-                      checked={formData.consent}
-                      onChange={handleInputChange}
-                    />
-                    <label htmlFor="consent-check">
-                      I agree to the consent form and understand the risks involved in tattoo procedures
-                      <span className="required">*</span>
-                    </label>
                   </div>
                 </div>
               </div>
 
               <div className="form-section">
-                <h2 className="section-title">Additional Notes</h2>
+                <h2 className="section-title">Additional Details</h2>
 
-                <div className="form-row full">
+                <div className="form-row">
                   <div className="form-group">
-                    <label>Notes</label>
-                    <textarea
-                      name="notes"
-                      placeholder="Any additional information or special requests..."
-                      value={formData.notes}
+                    <label>Tattoo Inch</label>
+                    <input
+                      type="text"
+                      name="inch"
+                      placeholder="Tattoo Inch"
+                      value={formData.address}
                       onChange={handleInputChange}
-                    ></textarea>
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label>Tattoo Price</label>
+                    <input
+                      type="text"
+                      name="price"
+                      placeholder="Tattoo Price"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                    />
                   </div>
                 </div>
               </div>
 
               <div className="form-actions">
-                <button type="button" className="reset-btn" onClick={handleReset}>
+                <button
+                  type="button"
+                  className="reset-btn"
+                  onClick={handleReset}
+                >
                   Clear Form
                 </button>
                 <button type="submit" className="submit-btn">
@@ -378,7 +381,7 @@ const ClientForm = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default ClientForm
+export default ClientForm;

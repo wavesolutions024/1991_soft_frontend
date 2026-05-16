@@ -1,0 +1,20 @@
+.main_panel {
+  width: 100%;
+
+  .mainsidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  .children {
+    width: calc(100% - 250px);
+    position: absolute;
+    top: 0;
+    margin-left: 250px;
+    height: 100svh;
+    overflow-y: auto;
+    background: radial-gradient(circle at top left, #0e3c52, #081617 40%);
+  }
+}

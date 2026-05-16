@@ -1,44 +1,60 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import "./Login.scss";
 import { UserContext } from "../../Context";
 import { api } from "../../Api";
 import { IoMdEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [password, setPassword] = useState(false);
-  const [error,setError] = useState({
+  const [error, setError] = useState({
     username: "",
     password: "",
-  })
+  });
   const [form, setForm] = useState({
     username: "",
     password: "",
   });
+  const navigate = useNavigate();
   const { franchiesData } = useContext(UserContext);
 
   const login = async (e) => {
     try {
-      e.preventDefault()
-      if(!form.username){
+      e.preventDefault();
+      if (!form.username) {
         setError({
-          username:"Username requried"
+          username: "Username requried",
         });
         return;
-      }else if (!form.password){
+      } else if (!form.password) {
         setError({
-          password:"Password requried"
+          password: "Password requried",
         });
         return;
       }
-      
+
       const response = await api.post("api/franchies/login", {
         username: form.username,
         password: form.password,
       });
 
-      console.log(response);
+      if (response.status === 200) {
+        localStorage.setItem("isLoggedIn", true);
+        franchiesData();
+        navigate("/");
+      }
     } catch (error) {
-      console.log(error);
+      if (error.response.data.message === "Password Invalid") {
+        setError({
+          password: error.response.data.message,
+        });
+      }
+      if (error.response.data.message === "User not found") {
+        setError({
+          username: error.response.data.message,
+        });
+      }
+      console.log(error.response.data.message);
     }
   };
 

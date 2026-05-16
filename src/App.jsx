@@ -1,36 +1,39 @@
-import {  Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.scss";
-import Sidebar from "./comp/sidebar/Sidebar";
-import Dashboard from "./comp/dashboard/Dashboard";
-import ClientForm from "./comp/client form/ClientForm";
-import AppointmentForm from "./comp/appointment form/AppointmentForm";
-import ArtistManagement from "./comp/artist management/ArtistManagement";
-import Artists from "./comp/artists/Artists";
-import ConsultantForm from "./comp/consultant form/ConsultantForm";
-import Login from "./pages/login/Login";
+import ValidateRoute from "../src/Validate";
+import { routes } from "./Pages";
 
+import { useContext } from "react";
+import { UserContext } from "./Context";
+import { ToastContainer } from "react-toastify";
+import Loader from "./comp/Loader/Loader";
 function App() {
 
-    const location = useLocation();
-    const isLoginPage = location.pathname === '/login';
-
-    return (
-      <div className={`app ${isLoginPage ? 'login-layout' : ''}`}>
-        {!isLoginPage && <Sidebar />}
-        <Routes>
-          <Route path="/" element={<Dashboard/>} />
-          <Route path="/client-form" element={<ClientForm/>} />
-          <Route path="/appointment-form" element={<AppointmentForm/>} />
-          <Route path="/artist-management" element={<ArtistManagement/>} />
-          <Route path="/artists" element={<Artists/>} />
-          <Route path="/consultants" element={<ConsultantForm/>} />
-          <Route path="/login" element={<Login/>} />
-        </Routes>
-      </div>
-    );
-  };
-
-
-
+  const { loader } = useContext(UserContext);
+  return (
+    <>
+      <ToastContainer />
+   { loader &&  <Loader/>}
+  
+      <Routes>
+        {routes.map((item, index) => (
+          <Route
+            key={index}
+            path={item.path}
+            element={
+              item.isPublic ? (
+                <item.element />
+              ) : (
+                <ValidateRoute admin={item.admin}>
+                  <item.element />
+                </ValidateRoute>
+              )
+            }
+          />
+        ))}
+      </Routes>
+    </>
+  );
+}
 
 export default App;

@@ -1,4 +1,4 @@
-import React from "react";
+
 import "../sidebar/Sidebar.scss";
 import logo from "../../assets/1991_tattoo_logo.png";
 import { Link, useLocation } from "react-router-dom";
@@ -24,7 +24,7 @@ const Sidebar = () => {
             Dashboard
           </Link>
 
-          <Link to="/client-form" className={location.pathname === "/client-form" ? "active" : ""}>
+          <Link to="/cleints" className={location.pathname === "/cleints" ? "active" : ""}>
             Client Management
           </Link>
 
