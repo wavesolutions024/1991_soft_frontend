@@ -276,6 +276,13 @@
   margin-bottom: 16px;
 }
 
+.field-error {
+  display: block;
+  margin-top: 8px;
+  color: #ff4757;
+  font-size: 12px;
+}
+
 .table-page-header {
   display: flex;
   align-items: flex-start;
@@ -315,26 +322,30 @@
 .client-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  overflow-x: scroll;
+  // min-width: 720px;
 }
 
 .client-table th,
 .client-table td {
+  text-align: center;
   padding: 18px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .client-table th {
-  text-align: left;
+  text-align: center;
   color: var(--text-muted);
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  width: 200px ;
 }
 
 .client-table td {
   color: var(--text-primary);
   font-size: 14px;
+  width: 200px ;
 }
 
 .client-table tr:last-child td {

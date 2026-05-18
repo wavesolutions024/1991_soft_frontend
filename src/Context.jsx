@@ -9,7 +9,7 @@ const ContextProvider = ({ children }) => {
     const isLoggedin = localStorage.getItem("isLoggedIn");
     const [loader,setLoader] = useState(true);
 
-    console.log(loader)
+
 
 
       const franchiesData = async ()=>{
@@ -39,7 +39,7 @@ const ContextProvider = ({ children }) => {
 
     
     return (
-        <UserContext.Provider value={{ userData,franchiesData,loader }}>
+        <UserContext.Provider value={{ userData,franchiesData,loader,setLoader }}>
             {children}
         </UserContext.Provider>
     );
