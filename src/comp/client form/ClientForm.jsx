@@ -376,7 +376,7 @@ const ClientForm = () => {
                     <div className="form-group">
                       <label>
                         Email
-                        <span className="required">*</span>
+                       
                       </label>
                       <input
                         type="email"

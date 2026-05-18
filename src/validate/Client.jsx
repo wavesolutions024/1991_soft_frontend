@@ -5,9 +5,7 @@ export const validateClient = (value) => {
         error.name = "Name is required";
     }
 
-    if (!value.email?.trim()) {
-        error.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email)) {
+   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email)) {
         error.email = "Email address is invalid";
     }
 
