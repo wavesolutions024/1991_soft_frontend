@@ -2,8 +2,9 @@ import { lazy } from "react";
 
 
 const Login = lazy(() => import("../src/pages/login/Login"));
-const Home = lazy(()=> import("../src/pages/home/Home"))
-const clientForm = lazy(()=> import("./pages/client_form/ClForm"))
+const Home = lazy(()=> import("../src/pages/home/Home"));
+const clientForm = lazy(()=> import("./pages/client_form/ClForm"));
+const artists = lazy(()=> import("./pages/Artist/Artists"));
 
 export const routes = [
 {
@@ -22,7 +23,12 @@ export const routes = [
 {
     path: "/cleints",
     element: clientForm,
-    exact: true,
-    
+    exact: true,  
+},
+{
+    path: "/artists",
+    element: artists,
+    exact: true,  
+    admin:true
 },
 ]

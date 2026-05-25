@@ -1,10 +1,12 @@
-
 import "../sidebar/Sidebar.scss";
 import logo from "../../assets/1991_tattoo_logo.png";
 import { Link, useLocation } from "react-router-dom";
+import { useContext } from "react";
+import { UserContext } from "../../Context";
 
 const Sidebar = () => {
   const location = useLocation();
+  const { userData } = useContext(UserContext);
 
   return (
     <div>
@@ -24,23 +26,43 @@ const Sidebar = () => {
             Dashboard
           </Link>
 
-          <Link to="/cleints" className={location.pathname === "/cleints" ? "active" : ""}>
+          <Link
+            to="/cleints"
+            className={location.pathname === "/cleints" ? "active" : ""}
+          >
             Client Management
           </Link>
 
-          <Link to="/appointment-form" className={location.pathname === "/appointment-form" ? "active" : ""}>
+          <Link
+            to="/appointment-form"
+            className={
+              location.pathname === "/appointment-form" ? "active" : ""
+            }
+          >
             Appointment Booking
           </Link>
 
-          <Link to="/artist-management" className={location.pathname === "/artist-management" ? "active" : ""}>
-            Artist Management
-          </Link>
-
-          <Link to="/artists" className={location.pathname === "/artists" ? "active" : ""}>
+          {userData?.role === "Admin" && (
+            <Link
+              to="/artists"
+              className={
+                location.pathname === "/artists" ? "active" : ""
+              }
+            >
+              Artist Management
+            </Link>
+          )}
+          <Link
+            to="/artists"
+            className={location.pathname === "/artists" ? "active" : ""}
+          >
             Artists
           </Link>
 
-          <Link to="/consultants" className={location.pathname === "/consultants" ? "active" : ""}>
+          <Link
+            to="/consultants"
+            className={location.pathname === "/consultants" ? "active" : ""}
+          >
             Consultant Form
           </Link>
         </nav>
