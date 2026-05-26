@@ -52,12 +52,7 @@ const Sidebar = () => {
               Artist Management
             </Link>
           )}
-          <Link
-            to="/artists"
-            className={location.pathname === "/artists" ? "active" : ""}
-          >
-            Artists
-          </Link>
+         
 
           <Link
             to="/consultants"

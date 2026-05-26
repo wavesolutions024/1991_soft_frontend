@@ -9,6 +9,7 @@ import { RxCross2 } from "react-icons/rx";
 import Loader from "../../comp/Loader/Loader";
 import { validateArtists } from "../../validate/Artists";
 import { toast } from "react-toastify";
+import { useNavigate, useSearchParams } from "react-router-dom";
 const Artists = () => {
   const [loader, setLoader] = useState(false);
   const [data, setData] = useState();
@@ -21,6 +22,9 @@ const Artists = () => {
   const [modal, setModal] = useState(false);
   const [values, setValues] = useState(payload);
   const [errors, setErrors] = useState(payload);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
 
   const getAllArtists = async () => {
     try {
@@ -56,30 +60,83 @@ const Artists = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const validateErrors = validateArtists(values);
+      const validateErrors = validateArtists(values,id);
       setErrors(validateErrors);
 
       if (Object.keys(validateErrors).length > 0) {
         return;
       }
-      const response = await api.post("api/artists/add", values);
+      let response;
+
+      if (id) {
+        response = await api.put(`api/artists/editArtist?id=${id}`, values);
+      } else {
+        response = await api.post("api/artists/add", values);
+      }
 
       if (response.status === 200) {
         getAllArtists();
-        setModal(true);
-        toast.success("Artist Added Successfully");
+        setModal(false);
+       id ? toast.success("Artist Updated Successfully") : toast.success("Artist Added Successfully") ;
+       navigate("/artists")
       }
 
-      console.log(response);
+      
     } catch (error) {
       console.log(error.response);
-      const errorRes = error.response.data
-      if(errorRes?.message === "Username already registed"){
-        setErrors((prev)=>({
-            ...prev,
-            username:errorRes?.message
-        }))
+      const errorRes = error.response.data;
+      if (errorRes?.message === "Username already registed") {
+        setErrors((prev) => ({
+          ...prev,
+          username: errorRes?.message,
+        }));
       }
+    }
+  };
+
+  console.log(errors)
+
+  // delete artists
+  const deleteArtist = async (id) => {
+    try {
+      const confirm = window.confirm("Are You Sure delete artist");
+
+      if (!confirm) return;
+
+      if (!id) {
+        toast.error("id is required");
+
+        return;
+      }
+
+      const response = await api.delete(`/api/artists/deleteArtist?id=${id}`);
+
+      if (response.status === 200) {
+        getAllArtists();
+        toast.success("Artist Delete Successfully");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getArtistbyId = async (id) => {
+    try {
+      const response = await api.get(`/api/artists/getArtistById?id=${id}`);
+
+      const data = response?.data?.data;
+    
+      setValues((prev) => ({
+        ...prev,
+        artistName: data.artistName,
+        artistNumber: data?.artistNumber,
+        username: data?.username,
+      }));
+
+      navigate(`/artists?id=${id}`);
+      setModal(true);
+    } catch (error) {
+      console.log(error.response);
     }
   };
 
@@ -89,6 +146,15 @@ const Artists = () => {
     };
     fetchArtits();
   }, []);
+
+  useEffect(() => {
+    const fetchArtits = async () => {
+      if (id) {
+        await getArtistbyId(id);
+      }
+    };
+    fetchArtits();
+  }, [id]);
 
   return (
     <>
@@ -139,10 +205,14 @@ const Artists = () => {
                       >
                         <span
                           style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => getArtistbyId(client.id)}
                         >
                           <MdModeEditOutline />
                         </span>
-                        <span style={{ cursor: "pointer" }}>
+                        <span
+                          style={{ cursor: "pointer" }}
+                          onClick={() => deleteArtist(client.id)}
+                        >
                           <MdDelete />
                         </span>
                       </td>

@@ -1,4 +1,4 @@
-export const validateArtists = (value) => {
+export const validateArtists = (value,id) => {
   const error = {};
 
   if (!value.artistName?.trim()) {
@@ -15,8 +15,8 @@ export const validateArtists = (value) => {
   if (!value.username?.trim()) {
     error.name = "Username is required";
   }
-  if (!value.password?.trim()) {
-    error.name = "Password is required";
+  if (!value.password?.trim() && !id) {
+    error.password = "Password is required";
   }
 
   return error
