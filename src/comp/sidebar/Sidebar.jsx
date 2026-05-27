@@ -55,10 +55,10 @@ const Sidebar = () => {
          
 
           <Link
-            to="/consultants"
-            className={location.pathname === "/consultants" ? "active" : ""}
+            to="/consent"
+            className={location.pathname === "/consent" ? "active" : ""}
           >
-            Consultant Form
+            Consent
           </Link>
         </nav>
 

@@ -94,7 +94,7 @@ const Artists = () => {
     }
   };
 
-  console.log(errors)
+
 
   // delete artists
   const deleteArtist = async (id) => {

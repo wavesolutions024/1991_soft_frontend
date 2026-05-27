@@ -14,6 +14,9 @@ const initialFormData = {
   mobileno: "",
   gender: "",
   address: "",
+  tattooArtist: "",
+  clientType: "",
+  referallName: "",
   dob: "",
   tattoodetails: "",
   inch: "",
@@ -24,6 +27,7 @@ const ClientForm = () => {
   const [tattooImage, setTattooImage] = useState(null);
   const [loader, setLoader] = useState(false);
   const [error, setError] = useState({});
+  const [artists, setArtists] = useState();
   const popup = localStorage.getItem("modal");
   const [clients, setClients] = useState();
   const [showModal, setShowModal] = useState(false);
@@ -95,6 +99,16 @@ const ClientForm = () => {
     }
   };
 
+  const getAllArtists = async () => {
+    try {
+      const response = await api.get(`api/artists/getAllArtists`);
+
+      setArtists(response?.data?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -133,6 +147,7 @@ const ClientForm = () => {
       if (response.status === 200) {
         setShowModal(false);
         setSubmitted(true);
+        localStorage.removeItem("modal");
         handleReset();
         if (clientid) {
           toast.success("Client Updated successfully");
@@ -178,6 +193,9 @@ const ClientForm = () => {
         mobileno: data.mobileno,
         gender: data.gender,
         address: data.address,
+        tattooArtist: data.tattooArtist,
+        clientType: data.clientType,
+        referallName: data.referallName,
         dob: data.dob,
         tattoodetails: data.tattoodetails,
         inch: data.inch,
@@ -192,15 +210,19 @@ const ClientForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       await getAllClient();
+      await getAllArtists();
     };
 
     fetchData();
   }, []);
 
   useEffect(() => {
-    if (clientid) {
-      getClientById(clientid);
-    }
+    const getClient = async () => {
+      if (clientid) {
+        await getClientById(clientid);
+      }
+    };
+    getClient();
   }, [searchparams]);
 
   // delete client
@@ -255,11 +277,15 @@ const ClientForm = () => {
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
+                <th>Client Type</th>
+                <th>Referral Person</th>
                 <th>Tattoo Details</th>
+                <th>Tattoo Artist</th>
                 <th>DOB</th>
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
                 <th>Tattoo Price</th>
+                <th>Tattoo Image</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -270,21 +296,29 @@ const ClientForm = () => {
                     <td>{client.name}</td>
                     <td>{client.mobileno}</td>
                     <td>{client.email}</td>
+                    <td>{client.clientType }</td>
+                    <td>{client.referallName }</td>
                     <td>{client.tattoodetails}</td>
+                    <td>{client.tattooArtist}</td>
                     <td>{client.dob}</td>
                     <td>{client.gender}</td>
                     <td>{client.inch}</td>
                     <td>{client.price}</td>
-                    <td
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "14px",
-                      }}
-                    >
+                    <td>
+                      {" "}
+                      <img
+                        style={{
+                          width: "100px",
+                          height: "100px",
+                          objectFit: "cover",
+                        }}
+                        src={client.tattooImage}
+                        alt=""
+                      />{" "}
+                    </td>
+                    <td style={{}}>
                       <span
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: "pointer", marginRight: "15px" }}
                         onClick={() => editClient(client.id)}
                       >
                         <MdModeEditOutline />
@@ -374,10 +408,7 @@ const ClientForm = () => {
 
                   <div className="form-row">
                     <div className="form-group">
-                      <label>
-                        Email
-                       
-                      </label>
+                      <label>Email</label>
                       <input
                         type="email"
                         name="email"
@@ -455,12 +486,68 @@ const ClientForm = () => {
                       />
                     </div>
                   </div>
+                  <div class="form-row">
+                    <div className="form-group">
+                      <label>
+                        Client Type
+                        <span className="required">*</span>
+                      </label>
+                      <select
+                        name="clientType"
+                        value={formData.clientType}
+                        onChange={handleInputChange}
+                      >
+                        <option value="" style={{ color: "black" }}>
+                          Select Type
+                        </option>
+                        <option value="Walk in" style={{ color: "black" }}>
+                          Walk in
+                        </option>
+                        <option value="Instragram" style={{ color: "black" }}>
+                          Instragram
+                        </option>
+                        <option value="Google" style={{ color: "black" }}>
+                          Google
+                        </option>
+                        <option value="Referal" style={{ color: "black" }}>
+                          Referal
+                        </option>
+                      </select>
+                      {error.clientType && (
+                        <small className="field-error">
+                          {error.clientType}
+                        </small>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>Referral</label>
+                      <select
+                        name="referallName"
+                        value={formData.referallName}
+                        onChange={handleInputChange}
+                      >
+                        <option value="" style={{ color: "black" }}>
+                          Select Referal
+                        </option>
+                        {clients &&
+                          clients?.map((item, index) => (
+                            <option
+                              key={index}
+                              value={item.name}
+                              style={{ color: "black" }}
+                            >
+                              {item?.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="form-section">
                   <h2 className="section-title">Tattoo Information</h2>
 
-                  <div className="form-row full">
+                  <div className="form-row">
                     <div className="form-group">
                       <label>
                         Tattoo Details
@@ -473,6 +560,37 @@ const ClientForm = () => {
                         value={formData.tattoodetails}
                         onChange={handleInputChange}
                       />
+                      {error.tattoodetails && (
+                        <small className="field-error">
+                          {error.tattoodetails}
+                        </small>
+                      )}
+                    </div>
+                    <div className="form-group">
+                      <label>
+                        Select Artist
+                        <span className="required">*</span>
+                      </label>
+                      <select
+                        name="tattooArtist"
+                        value={formData.tattooArtist}
+                        onChange={handleInputChange}
+                      >
+                        <option style={{ color: "black" }}>
+                          Select Artist
+                        </option>
+                        {artists &&
+                          artists?.map((item, index) => (
+                            <option
+                              style={{ color: "black" }}
+                              key={index}
+                              value={item.artistName}
+                            >
+                              {item.artistName}
+                            </option>
+                          ))}
+                      </select>
+
                       {error.tattoodetails && (
                         <small className="field-error">
                           {error.tattoodetails}
