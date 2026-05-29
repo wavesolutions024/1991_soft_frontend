@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./ClientForm.scss";
 import { api } from "../../Api";
 import { validateClient } from "../../validate/Client";
@@ -7,8 +7,10 @@ import Loader from "../Loader/Loader";
 import { MdModeEditOutline } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { UserContext } from "../../Context";
 
 const initialFormData = {
+  username:"",
   name: "",
   email: "",
   mobileno: "",
@@ -36,6 +38,7 @@ const ClientForm = () => {
   const [fileSelected, setFileSelected] = useState(false);
   const navigate = useNavigate();
   const [searchparams] = useSearchParams();
+  const {userData} =useContext(UserContext)
   const clientid = searchparams.get("id");
 
   const handleInputChange = (e) => {
@@ -216,6 +219,15 @@ const ClientForm = () => {
     fetchData();
   }, []);
 
+  useEffect(()=>{
+    if(userData){
+      setFormData((prev)=>({
+        ...prev,
+        username:userData?.username
+      }))
+    }
+  },[])
+
   useEffect(() => {
     const getClient = async () => {
       if (clientid) {
@@ -246,6 +258,9 @@ const ClientForm = () => {
       }
     } catch (error) {
       console.log(error);
+      if(error.response){
+        toast.error(error?.response?.data?.message)
+      }
     }
   };
 

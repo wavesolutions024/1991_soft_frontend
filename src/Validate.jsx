@@ -17,7 +17,7 @@ const ValidateRoute = ({ children, admin = false }) => {
 
 
   if(admin  && userData?.role !== "Admin"){
-    return <Navigate to="/404" replace />
+    return <Navigate to="/cleints" replace />
   }
 
 

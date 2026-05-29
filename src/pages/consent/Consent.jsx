@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import MainPanel from "../../comp/Main_panel/MainPanel";
 import "./Consent.scss";
 import { MdModeEditOutline } from "react-icons/md";
@@ -7,21 +7,33 @@ import { api } from "../../Api";
 import { RxCross2 } from "react-icons/rx";
 import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { UserContext } from "../../Context";
 const Consent = () => {
   const payload = {
+    username:"",
     clientId: "",
     idProofType: "",
     idProofNumber: "",
   };
   const [modal, setModal] = useState(false);
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [values, setValues] = useState(payload);
   const [errors, setErrors] = useState(payload);
   const [client, setClient] = useState();
   const sigCanvas = useRef(null);
   const [idprooffile, setIdprooffile] = useState();
   const navigate = useNavigate();
+  const {userData} = useContext(UserContext)
+  const [pagination, setPagination] = useState({
+    page: 1,
+    size: 10,
+    total: "",
+    totalPages: "",
+  });
+
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
   const clearSignature = () => {
     sigCanvas.current.clear();
   };
@@ -57,18 +69,35 @@ const Consent = () => {
       console.log(error.response);
     }
   };
+  const getAllConsent = async () => {
+    try {
+      const response = await api.get(
+        `api/consent/getAllConsent?page=${pagination.page}&size=${pagination.size}`,
+      );
+      if (response.status === 200) {
+        setData(response?.data?.data || []);
 
+        setPagination((prev) => ({
+          ...prev,
+          total: response?.data?.pagination?.total,
+          totalPages: response?.data?.pagination?.totalPages,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (sigCanvas.current.isEmpty()) {
+      if (sigCanvas.current.isEmpty() && !id) {
         toast.error("Please sign first");
         return;
       }
 
       let validationError = false;
 
-      if (!values.clientId?.trim()) {
+      if (!values.clientId) {
         validationError = true;
 
         setErrors((prev) => ({
@@ -116,28 +145,94 @@ const Consent = () => {
       formData.append("idproof", idprooffile);
       formData.append("consent", JSON.stringify(values));
 
-      const response = await api.post("api/consent/add", formData, {
+      let response ; 
+      if(id){
+        response = await api.put(`api/consent/editConsent?id=${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
+      }else{
+       response =  await api.post("api/consent/add", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      }
+      
 
       if (response.status === 200) {
-        toast.success("Consent Added Successfully");
+       id ?  toast.success("Consent Edit Successfully") :  toast.success("Consent Added Successfully") ;
+        setModal(false);
+        setValues({
+          clientId: "",
+          idProofType: "",
+          idProofNumber: "",
+        });
+        navigate("/consent");
+        getAllConsent()
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getAllConsent
+
+
+  const getConsentById = async (id) => {
+    try {
+      const response = await api.get(`api/consent/getConsentById?id=${id}`);
+     
+      const data = response?.data?.data
+      setValues((prev) => ({
+        ...prev,
+        clientId: data.clientId,
+        idProofType: data.idProofType,
+        idProofNumber: data.idProofNumber
+      }));
+      navigate(`/consent?id=${id}`);
+      setModal(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const fetchClients = async () => {
       await getAllClient();
+      await getAllConsent();
     };
     fetchClients();
   }, []);
+
+  useEffect(() => {
+    const fetchConsent = async () => {
+      if (pagination.page || pagination.size) {
+        await getAllConsent();
+      }
+    };
+
+    fetchConsent();
+  }, [pagination.page || pagination.size]);
+
+  useEffect(() => {
+    const getConsetId = () => {
+      if (id) {
+        getConsentById(id);
+      }
+    };
+
+    getConsetId();
+  }, []);
+
+    useEffect(()=>{
+    if(userData){
+      setValues((prev)=>({
+        ...prev,
+        username:userData?.username
+      }))
+    }
+  },[])
 
   return (
     <>
@@ -165,42 +260,117 @@ const Consent = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Contact</th>
-                  <th>Username</th>
-                  <th>Role</th>
+                  <th>Id Proof Type</th>
+                  <th>Id Proof Number</th>
+                  <th>Id Proof Image</th>
+                  <th>Signature</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {data ? (
-                  data.map((client) => (
-                    <tr key={client.id}>
-                      <td>{client.artistName}</td>
-                      <td>{client.artistNumber}</td>
-                      <td>{client.username}</td>
-                      <td>{client.role}</td>
+                {data.length > 0 ? (
+                  data.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.name}</td>
+                      <td>{item.idProofType}</td>
+                      <td>{item.idProofNumber}</td>
+                      <td>
+                        <img
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "contain",
+                          }}
+                          src={item.idProofImage}
+                          alt=""
+                        />
+                      </td>
+                      <td>
+                        <img
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "contain",
+                          }}
+                          src={item.signature}
+                          alt=""
+                        />
+                      </td>
 
-                      <td
-                        style={{
-                          width: "200px",
-                        }}
-                      >
+                      <td style={{ width: "200px" }}>
                         <span
+                          onClick={() => getConsentById(item.id)}
                           style={{ cursor: "pointer", marginRight: "10px" }}
                         >
                           <MdModeEditOutline />
                         </span>
-                        <span style={{ cursor: "pointer" }}>
-                          <MdDelete />
-                        </span>
+                        
                       </td>
                     </tr>
                   ))
                 ) : (
-                  <p style={{ padding: "10px" }}>Data not found</p>
+                  <tr>
+                    <td colSpan="6" style={{ padding: "16px" }}>
+                      Data not found
+                    </td>
+                  </tr>
                 )}
               </tbody>
             </table>
+
+            {data.length > 0 && (
+              <div className="custom-pagination">
+                <span className="pagination-summary">
+                  Total {data.length} items
+                </span>
+
+                <div className="pagination-controls">
+                  <button
+                    className="pagination-btn"
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: Math.max(prev.page - 1, 1),
+                      }))
+                    }
+                    disabled={pagination.page === 1}
+                    type="button"
+                  >
+                    Previous
+                  </button>
+
+                  {Array.from(
+                    { length: pagination.totalPages },
+                    (_, index) => index + 1,
+                  ).map((page) => (
+                    <button
+                      key={page}
+                      className={`pagination-btn ${page === pagination.page ? "active" : ""}`}
+                      onClick={() =>
+                        setPagination((prev) => ({ ...prev, page }))
+                      }
+                      type="button"
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    className="pagination-btn"
+                    onClick={() =>
+                      setPagination((prev) => ({
+                        ...prev,
+                        page: Math.min(prev.page + 1, pagination.total),
+                      }))
+                    }
+                    disabled={pagination.page === pagination.totalPages}
+                    type="button"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -312,7 +482,7 @@ const Consent = () => {
                   </label>
                   <SignatureCanvas
                     ref={sigCanvas}
-                    penColor="black"
+                    penColor="red"
                     canvasProps={{
                       width: 500,
                       height: 200,

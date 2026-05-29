@@ -22,6 +22,54 @@
     border: 1px solid var(--border);
     border-radius: 20px;
 
+    .custom-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+      .pagination-summary {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .pagination-btn {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-primary);
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        &:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+
+        &.active {
+          background: #7c3aed;
+          border-color: #7c3aed;
+          color: #fff;
+        }
+      }
+    }
+
     .client-table {
       width: 100%;
       border-collapse: collapse;
