@@ -9,6 +9,7 @@ import SignatureCanvas from "react-signature-canvas";
 import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
+import { MdCameraAlt } from "react-icons/md";
 const Consent = () => {
   const payload = {
     username:"",
@@ -24,7 +25,11 @@ const Consent = () => {
   const sigCanvas = useRef(null);
   const [idprooffile, setIdprooffile] = useState();
   const navigate = useNavigate();
-  const {userData} = useContext(UserContext)
+  const {userData} = useContext(UserContext);
+  const [showCamera, setShowCamera] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
   const [pagination, setPagination] = useState({
     page: 1,
     size: 10,
@@ -38,9 +43,49 @@ const Consent = () => {
     sigCanvas.current.clear();
   };
 
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setShowCamera(true);
+      }
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      toast.error("Unable to access camera. Please check permissions.");
+    }
+  };
+
+  const captureImage = () => {
+    if (videoRef.current && canvasRef.current) {
+      const context = canvasRef.current.getContext("2d");
+      canvasRef.current.width = videoRef.current.videoWidth;
+      canvasRef.current.height = videoRef.current.videoHeight;
+      context.drawImage(videoRef.current, 0, 0);
+
+      canvasRef.current.toBlob((blob) => {
+        const file = new File([blob], `idproof_${Date.now()}.jpg`, { type: "image/jpeg" });
+        setIdprooffile(file);
+        stopCamera();
+        toast.success("Document captured successfully");
+      }, "image/jpeg");
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      setShowCamera(false);
+    }
+  };
+
   const closeModal = () => {
     setModal(false);
-
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      setShowCamera(false);
+    }
     navigate("/consent");
   };
 
@@ -130,7 +175,7 @@ const Consent = () => {
 
       const dataUrl = canvas.toDataURL("image/jpeg");
 
-      console.log("helloo");
+  
       // Convert Base64 to File
       const res = await fetch(dataUrl);
       const blob = await res.blob();
@@ -468,12 +513,67 @@ const Consent = () => {
                     Id Proof File
                     <span className="required">*</span>
                   </label>
-                  <input
-                    onChange={(e) => setIdprooffile(e.target.files[0])}
-                    type="file"
-                    name="password"
-                    placeholder="John Doe"
-                  />
+                  {!showCamera ? (
+                    <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+                      <button
+                        type="button"
+                        onClick={startCamera}
+                        className="btn"
+                        style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                      >
+                        <MdCameraAlt /> Capture Document
+                      </button>
+                      <label className="btn" style={{ cursor: "pointer", margin: 0 }}>
+                        Upload Document
+                        <input
+                          onChange={(e) => setIdprooffile(e.target.files[0])}
+                          type="file"
+                          name="idprooffile"
+                          style={{ display: "none" }}
+                        />
+                      </label>
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: "15px" }}>
+                      <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        style={{
+                          width: "100%",
+                          maxWidth: "500px",
+                          borderRadius: "4px",
+                          marginBottom: "10px",
+                        }}
+                      />
+                      <canvas
+                        ref={canvasRef}
+                        style={{ display: "none" }}
+                      />
+                      <div style={{ display: "flex", gap: "10px" }}>
+                        <button
+                          type="button"
+                          onClick={captureImage}
+                          className="btn"
+                        >
+                          Take Picture
+                        </button>
+                        <button
+                          type="button"
+                          onClick={stopCamera}
+                          className="btn"
+                          style={{ backgroundColor: "#dc3545" }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                  {idprooffile && (
+                    <p style={{ color: "green", marginTop: "10px" }}>
+                      ✓ File selected: {idprooffile.name}
+                    </p>
+                  )}
                 </div>
                 <div className="form-group">
                   <label>

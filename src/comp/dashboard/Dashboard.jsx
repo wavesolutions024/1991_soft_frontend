@@ -1,8 +1,145 @@
 
+import { useEffect, useState } from "react";
 import "./Dashboard.scss";
 import { IoNotificationsOutline } from "react-icons/io5";
+import { api } from "../../Api";
+
+const months = [
+  { value: 1, label: "Jan" },
+  { value: 2, label: "Feb" },
+  { value: 3, label: "Mar" },
+  { value: 4, label: "Apr" },
+  { value: 5, label: "May" },
+  { value: 6, label: "Jun" },
+  { value: 7, label: "Jul" },
+  { value: 8, label: "Aug" },
+  { value: 9, label: "Sep" },
+  { value: 10, label: "Oct" },
+  { value: 11, label: "Nov" },
+  { value: 12, label: "Dec" },
+];
 
 const Dashboard = () => {
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [stats, setStats] = useState({
+    totalClients: { count: 0, growth: "+0%", label: "" },
+    todayAppointments: { count: 0, growth: "+0%", label: "" },
+    totalEnquiries: { count: 0, growth: "+0%", label: "" },
+    totalConsultants: { count: 0, growth: "+0%", label: "" },
+  });
+  const [monthlyGrowth, setMonthlyGrowth] = useState({
+    title: "",
+    subtitle: "",
+    yoyGrowth: "",
+    chartData: [],
+  });
+  const [calendar, setCalendar] = useState({
+    title: "",
+    subtitle: "",
+    calendarEvents: [],
+  });
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get("api/dashboard/dashboard");
+        const dashboardData = response?.data?.data;
+        if (dashboardData) {
+          setStats(dashboardData.stats || {});
+          setMonthlyGrowth(dashboardData.monthlyGrowth || {});
+            const calendarData = dashboardData.calendar || {};
+            setCalendar(calendarData);
+            if (calendarData.month) {
+              const monthItem = months.find((item) => item.label === calendarData.month);
+              if (monthItem) {
+                setSelectedMonth(monthItem.value);
+              }
+            }
+            if (calendarData.year) {
+              setSelectedYear(calendarData.year);
+            }
+        }
+      } catch (error) {
+        console.error("Dashboard API error:", error);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    const loadCalendar = async () => {
+      try {
+        const response = await api.get(
+          `api/dashboard/calendar?month=${selectedMonth}&year=${selectedYear}`,
+        );
+        const calendarData = response?.data?.data;
+        if (calendarData) {
+          setCalendar(calendarData);
+        }
+      } catch (error) {
+        console.error("Calendar API error:", error);
+      }
+    };
+
+    if (selectedMonth && selectedYear) {
+      loadCalendar();
+    }
+  }, [selectedMonth, selectedYear]);
+
+  const handleMonthChange = (event) => {
+    setSelectedMonth(Number(event.target.value));
+  };
+
+  const handleYearChange = (event) => {
+    setSelectedYear(Number(event.target.value));
+  };
+
+  const yearOptions = [
+    selectedYear - 2,
+    selectedYear - 1,
+    selectedYear,
+    selectedYear + 1,
+    selectedYear + 2,
+  ];
+
+  const chartData = monthlyGrowth.chartData || [];
+  const maxValue = Math.max(...chartData.map((item) => item.activeClients || 0), 1);
+  const statCards = [
+    {
+      key: "totalClients",
+      title: "Total Clients",
+      value: stats.totalClients.count,
+      growth: stats.totalClients.growth,
+      label: stats.totalClients.label,
+      className: "blue",
+    },
+    {
+      key: "todayAppointments",
+      title: "Today’s Appointments",
+      value: stats.todayAppointments.count,
+      growth: stats.todayAppointments.growth,
+      label: stats.todayAppointments.label,
+      className: "violet",
+    },
+    {
+      key: "totalEnquiries",
+      title: "Total Enquiries",
+      value: stats.totalEnquiries.count,
+      growth: stats.totalEnquiries.growth,
+      label: stats.totalEnquiries.label,
+      className: "orange",
+    },
+    {
+      key: "totalConsultants",
+      title: "Total Consultants",
+      value: stats.totalConsultants.count,
+      growth: stats.totalConsultants.growth,
+      label: stats.totalConsultants.label,
+      className: "pink",
+    },
+  ];
+
   return (
     <div>
       <main className="dashboard">
@@ -23,36 +160,23 @@ const Dashboard = () => {
         </header>
 
         <section className="top-cards">
-          <article className="stat-card blue">
-            <p>Total Clients</p>
-            <h2>24</h2>
-            <span>+2.0% last month</span>
-          </article>
-          <article className="stat-card violet">
-            <p>Today’s Appointments</p>
-            <h2>12</h2>
-            <span>+1.0% last month</span>
-          </article>
-          <article className="stat-card orange">
-            <p>Total Enquires</p>
-            <h2>36</h2>
-            <span>+4.0% last month</span>
-          </article>
-          <article className="stat-card pink">
-            <p>Total Consultants</p>
-            <h2>142%</h2>
-            <span>+12% last month</span>
-          </article>
+          {statCards.map((card) => (
+            <article key={card.key} className={`stat-card ${card.className}`}>
+              <p>{card.title}</p>
+              <h2>{card.value}</h2>
+              <span>{`${card.growth || "+0%"} ${card.label || "last month"}`}</span>
+            </article>
+          ))}
         </section>
 
         <section className="graph-card">
           <div className="card card-graph">
             <div className="card-title">
               <div>
-                <h3>12-Month Client Growth</h3>
-                <p>Monthly active clients</p>
+                <h3>{monthlyGrowth.title || "12-Month Client Growth"}</h3>
+                <p>{monthlyGrowth.subtitle || "Monthly active clients"}</p>
               </div>
-              <span className="tag">+18% YoY</span>
+              <span className="tag">{monthlyGrowth.yoyGrowth || "+0% YoY"}</span>
             </div>
             <div className="graph-wrapper">
               <div className="graph-y-axis">
@@ -65,57 +189,15 @@ const Dashboard = () => {
               </div>
               <div className="graph-area">
                 <div className="graph-bars">
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "40%" }}></div>
-                    <span>Jan</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "50%" }}></div>
-                    <span>Feb</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "60%" }}></div>
-                    <span>Mar</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "68%" }}></div>
-                    <span>Apr</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "74%" }}></div>
-                    <span>May</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "82%" }}></div>
-                    <span>Jun</span>
-                  </div>
-                  <div className="graph-col">
-                    <div
-                      className="bar bar-highlight"
-                      style={{ height: "90%" }}
-                    ></div>
-                    <span>Jul</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "78%" }}></div>
-                    <span>Aug</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "72%" }}></div>
-                    <span>Sep</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "65%" }}></div>
-                    <span>Oct</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "58%" }}></div>
-                    <span>Nov</span>
-                  </div>
-                  <div className="graph-col">
-                    <div className="bar" style={{ height: "70%" }}></div>
-                    <span>Dec</span>
-                  </div>
+                  {chartData.map((item) => {
+                    const height = `${Math.max(((item.activeClients || 0) / maxValue) * 100, 8)}%`;
+                    return (
+                      <div key={item.month} className="graph-col">
+                        <div className="bar" style={{ height }}></div>
+                        <span>{item.month}</span>
+                      </div>
+                    );
+                  })}
                 </div>
                 <div className="graph-xline"></div>
               </div>
@@ -127,8 +209,24 @@ const Dashboard = () => {
           <div className="card card-calendar">
             <div className="card-title">
               <div>
-                <h3>Client Calendar</h3>
-                <p>Client meetings, tasks, and deadlines</p>
+                <h3>{calendar.title || "Client Calendar"}</h3>
+                <p>{calendar.subtitle || "Client meetings, tasks, and deadlines"}</p>
+              </div>
+              <div className="calendar-controls">
+                <select value={selectedMonth} onChange={handleMonthChange}>
+                  {months.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+                <select value={selectedYear} onChange={handleYearChange}>
+                  {yearOptions.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <div className="calendar-grid">
@@ -142,61 +240,22 @@ const Dashboard = () => {
                 <span>Sat</span>
               </div>
               <div className="calendar-days">
-                <div className="day empty"></div>
-                <div className="day day-event">
-                  <strong>2</strong>
-                  <p>Client: Sarah</p>
-                  <small>Intro call</small>
-                </div>
-                <div className="day day-event">
-                  <strong>3</strong>
-                  <p>Client: David</p>
-                  <small>Proposal review</small>
-                </div>
-                <div className="day">
-                  <strong>4</strong>
-                </div>
-                <div className="day day-event">
-                  <strong>5</strong>
-                  <p>Client: Emma</p>
-                  <small>Campaign launch</small>
-                </div>
-                <div className="day">
-                  <strong>6</strong>
-                </div>
-                <div className="day day-event">
-                  <strong>7</strong>
-                  <p>Client: Max</p>
-                  <small>Report sent</small>
-                </div>
-
-                <div className="day">
-                  <strong>8</strong>
-                </div>
-                <div className="day day-event">
-                  <strong>9</strong>
-                  <p>Client: Olivia</p>
-                  <small>Feedback review</small>
-                </div>
-                <div className="day">
-                  <strong>10</strong>
-                </div>
-                <div className="day day-event">
-                  <strong>11</strong>
-                  <p>Client: Jacob</p>
-                  <small>Contract sign</small>
-                </div>
-                <div className="day">
-                  <strong>12</strong>
-                </div>
-                <div className="day day-event">
-                  <strong>13</strong>
-                  <p>Client: Mia</p>
-                  <small>Performance check</small>
-                </div>
-                <div className="day">
-                  <strong>14</strong>
-                </div>
+                {calendar.calendarEvents?.map((event, index) => (
+                  <div
+                    key={`${event.dayOfMonth}-${index}`}
+                    className={`day ${event.appointments?.length ? "day-event" : ""}`}
+                  >
+                    <strong>{event.dayOfMonth}</strong>
+                    {event.appointments?.length > 0
+                      ? event.appointments.slice(0, 2).map((appointment, idx) => (
+                          <div key={idx}>
+                            <p>{appointment.title || appointment.client || "Appointment"}</p>
+                            <small>{appointment.subtitle || appointment.time || appointment.description || ""}</small>
+                          </div>
+                        ))
+                      : null}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
