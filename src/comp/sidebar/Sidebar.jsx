@@ -51,14 +51,14 @@ const Sidebar = () => {
               Client Management
             </Link>
 
-            <Link
+            {/* <Link
               to="/appointment-form"
               className={
                 location.pathname === "/appointment-form" ? "active" : ""
               }
             >
               Appointment Booking
-            </Link>
+            </Link> */}
 
             {userData?.role === "Admin" && (
               <Link

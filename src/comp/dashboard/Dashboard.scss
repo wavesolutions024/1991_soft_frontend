@@ -186,6 +186,30 @@
 .graph-card,
 .calendar-card {
   width: 100%;
+
+  .card-calendar{
+
+    .card-title{
+
+      .calendar-controls{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--unit);
+
+        select{
+          padding: 8px;
+          background-color: transparent;
+          color: white;
+          border-radius: 8px;
+
+          option{
+            color: black;
+          }
+        }
+      }
+    }
+  }
 }
 
 .card-graph {
@@ -205,6 +229,10 @@
   justify-items: end;
   color: var(--text-muted);
   font-size: 0.85rem;
+
+  &.active_y_axis{
+    grid-template-rows: repeat(11, 1fr);
+  }
 }
 
 .graph-area {
