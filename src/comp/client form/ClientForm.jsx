@@ -10,7 +10,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
 
 const initialFormData = {
-  username:"",
+  username: "",
   name: "",
   email: "",
   mobileno: "",
@@ -38,8 +38,14 @@ const ClientForm = () => {
   const [fileSelected, setFileSelected] = useState(false);
   const navigate = useNavigate();
   const [searchparams] = useSearchParams();
-  const {userData} =useContext(UserContext)
+  const { userData } = useContext(UserContext);
   const clientid = searchparams.get("id");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    size: 10,
+    total: "",
+    totalPages: "",
+  });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -93,8 +99,20 @@ const ClientForm = () => {
   const getAllClient = async () => {
     try {
       setLoader(true);
-      const response = await api.get("api/client/getAllClients");
-      setClients(response?.data?.data);
+      const response = await api.get(
+        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}`,
+      );
+
+         if (response.status === 200) {
+        setClients(response?.data?.data || []);
+
+        setPagination((prev) => ({
+          ...prev,
+          total: response?.data?.pagination?.total,
+          totalPages: response?.data?.pagination?.totalPages,
+        }));
+      }
+
     } catch (error) {
       console.log(error.response);
     } finally {
@@ -212,21 +230,33 @@ const ClientForm = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      await getAllClient();
+     
       await getAllArtists();
     };
 
     fetchData();
   }, []);
 
-  useEffect(()=>{
-    if(userData){
-      setFormData((prev)=>({
+
+
+  useEffect(() => {
+    if (userData) {
+      setFormData((prev) => ({
         ...prev,
-        username:userData?.username
-      }))
+        username: userData?.username,
+      }));
     }
-  },[])
+  }, []);
+
+    useEffect(() => {
+    const fetchConsent = async () => {
+      if (pagination.page || pagination.size) {
+        await getAllClient();
+      }
+    };
+
+    fetchConsent();
+  }, [pagination.page || pagination.size]);
 
   useEffect(() => {
     const getClient = async () => {
@@ -258,8 +288,8 @@ const ClientForm = () => {
       }
     } catch (error) {
       console.log(error);
-      if(error.response){
-        toast.error(error?.response?.data?.message)
+      if (error.response) {
+        toast.error(error?.response?.data?.message);
       }
     }
   };
@@ -311,8 +341,8 @@ const ClientForm = () => {
                     <td>{client.name}</td>
                     <td>{client.mobileno}</td>
                     <td>{client.email}</td>
-                    <td>{client.clientType }</td>
-                    <td>{client.referallName }</td>
+                    <td>{client.clientType}</td>
+                    <td>{client.referallName}</td>
                     <td>{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
                     <td>{client.dob}</td>
@@ -321,7 +351,9 @@ const ClientForm = () => {
                     <td>{client.price}</td>
                     <td>
                       {" "}
-                      <img
+                      {
+                        client.tattooImage  ?
+ <img
                         style={{
                           width: "100px",
                           height: "100px",
@@ -329,7 +361,11 @@ const ClientForm = () => {
                         }}
                         src={client.tattooImage}
                         alt=""
-                      />{" "}
+                      />
+                      :
+                      <p>No Image </p>
+                      }
+                     {" "}
                     </td>
                     <td style={{}}>
                       <span
@@ -352,6 +388,57 @@ const ClientForm = () => {
               )}
             </tbody>
           </table>
+          {clients?.length > 0 && (
+            <div className="custom-pagination">
+              <span className="pagination-summary">
+                Total {clients?.length} items
+              </span>
+
+              <div className="pagination-controls">
+                <button
+                  className="pagination-btn"
+                  onClick={() =>
+                    setPagination((prev) => ({
+                      ...prev,
+                      page: Math.max(prev.page - 1, 1),
+                    }))
+                  }
+                  disabled={pagination.page === 1}
+                  type="button"
+                >
+                  Previous
+                </button>
+
+                {Array.from(
+                  { length: pagination.totalPages },
+                  (_, index) => index + 1,
+                ).map((page) => (
+                  <button
+                    key={page}
+                    className={`pagination-btn ${page === pagination.page ? "active" : ""}`}
+                    onClick={() => setPagination((prev) => ({ ...prev, page }))}
+                    type="button"
+                  >
+                    {page}
+                  </button>
+                ))}
+
+                <button
+                  className="pagination-btn"
+                  onClick={() =>
+                    setPagination((prev) => ({
+                      ...prev,
+                      page: Math.min(prev.page + 1, pagination.total),
+                    }))
+                  }
+                  disabled={pagination.page === pagination.totalPages}
+                  type="button"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {(showModal || clientid) && (

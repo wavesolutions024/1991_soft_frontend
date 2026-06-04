@@ -133,8 +133,8 @@ const Dashboard = () => {
       className: "orange",
     },
     {
-      key: "totalConsultants",
-      title: "Total Consultants",
+      key: "totalArtists",
+      title: "Total Artists",
       value: stats.totalConsultants.count,
       growth: stats.totalConsultants.growth,
       label: stats.totalConsultants.label,
@@ -265,8 +265,8 @@ const Dashboard = () => {
                   >
                     <strong>{event.dayOfMonth}</strong>
                     {event.appointments?.length > 0
-                      ? event.appointments.map((appointment, idx) => (
-                          <div key={idx}>
+                      ? event.appointments.slice(0, 5).map((appointment, idx) => (
+                          <div className="day_data" key={idx}>
                             <p>{appointment.clientName || appointment.clientName || "Appointment"}</p>
                             <small>{appointment.subtitle || appointment.time || appointment.description || ""}</small>
                           </div>
