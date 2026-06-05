@@ -142,7 +142,7 @@ const Dashboard = () => {
     },
   ];
 
-  console.log(calendar, "appointment")
+  console.log(chartData, "chartData")
 
   return (
     <div>
@@ -211,7 +211,7 @@ const Dashboard = () => {
                     const height = `${Math.max(((item.activeClients || 0) / maxValue) * 100, 8)}%`;
                     return (
                       <div key={item.month} className="graph-col">
-                        <div className="bar" style={{ height }}></div>
+                        <div className="bar" style={{ height : height}}></div>
                         <span>{item.month}</span>
                       </div>
                     );
