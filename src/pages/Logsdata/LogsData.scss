@@ -1,0 +1,102 @@
+.table-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+  padding: 32px;
+
+  h1 {
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+}
+
+.artist_table {
+  width: 100%;
+  padding: 0px 32px;
+
+  .client-table-wrapper {
+    overflow-x: auto;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+
+    .custom-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+      .pagination-summary {
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .pagination-controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .pagination-btn {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-primary);
+        border-radius: 8px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          background: rgba(255, 255, 255, 0.1);
+        }
+
+        &:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+
+        &.active {
+          background: #7c3aed;
+          border-color: #7c3aed;
+          color: #fff;
+        }
+      }
+    }
+
+    .client-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow-x: scroll;
+      // min-width: 720px;
+
+      th,
+      td {
+        text-align: center;
+        padding: 18px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      th {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        width: 200px;
+      }
+
+      td {
+        color: var(--text-primary);
+        font-size: 14px;
+        width: 200px;
+      }
+    }
+  }
+}

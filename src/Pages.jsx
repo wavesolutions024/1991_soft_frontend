@@ -5,7 +5,7 @@ const home = lazy(() => import("../src/pages/home/Home"));
 const clientForm = lazy(() => import("./pages/client_form/ClForm"));
 const artists = lazy(() => import("./pages/Artist/Artists"));
 const consent = lazy(() => import("./pages/consent/Consent"));
-const logs = lazy(() => import("./pages/logs/Logs"));
+const logs = lazy(() => import("./pages/Logsdata/LogsData"));
 
 export const routes = [
   {
