@@ -1,22 +1,22 @@
 import { lazy } from "react";
 
-const Login = lazy(() => import("../src/pages/login/Login"));
-const Home = lazy(() => import("../src/pages/home/Home"));
+const login = lazy(() => import("../src/pages/login/Login"));
+const home = lazy(() => import("../src/pages/home/Home"));
 const clientForm = lazy(() => import("./pages/client_form/ClForm"));
 const artists = lazy(() => import("./pages/Artist/Artists"));
-const Consent = lazy(() => import("./pages/consent/Consent"));
+const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/logs/Logs"));
 
 export const routes = [
   {
     path: "/login",
-    element: Login,
+    element: login,
     exact: true,
     isPublic: true,
   },
   {
     path: "/",
-    element: Home,
+    element: home,
     exact: true,
     admin: true,
   },
@@ -33,7 +33,7 @@ export const routes = [
   },
   {
     path: "/consent",
-    element: Consent,
+    element: consent,
     exact: true,
   },
   {
