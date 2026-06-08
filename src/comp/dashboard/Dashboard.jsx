@@ -4,6 +4,7 @@ import "./Dashboard.scss";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { api } from "../../Api";
 
+
 const months = [
   { value: 1, label: "Jan" },
   { value: 2, label: "Feb" },
@@ -39,7 +40,8 @@ const Dashboard = () => {
     subtitle: "",
     calendarEvents: [],
   });
-  const [expandGraph, setExpandGraph] = useState(false);
+
+  const [expandedAppointmentEvent, setExpandedAppointmentEvent] = useState(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -96,6 +98,14 @@ const Dashboard = () => {
     setSelectedYear(Number(event.target.value));
   };
 
+  const handleOpenAppointmentModal = (event) => {
+    setExpandedAppointmentEvent(event);
+  };
+
+  const handleCloseAppointmentModal = () => {
+    setExpandedAppointmentEvent(null);
+  };
+
   const yearOptions = [
     selectedYear - 2,
     selectedYear - 1,
@@ -105,8 +115,7 @@ const Dashboard = () => {
   ];
 
   const chartData = monthlyGrowth.chartData || [];
-  const maxValue = Math.max(...chartData.map((item) => item.activeClients || 0), 1);
-  const expandedMaxValue = 100;
+
   const statCards = [
     {
       key: "totalClients",
@@ -141,7 +150,8 @@ const Dashboard = () => {
       className: "pink",
     },
   ];
-
+ const MAX_VAL = Math.max(...monthlyGrowth.chartData.map(d => d.activeClients), 100);
+  const ticks = [0, Math.round(MAX_VAL * 0.25), Math.round(MAX_VAL * 0.5), Math.round(MAX_VAL * 0.75), MAX_VAL];
   console.log(chartData, "chartData")
 
   return (
@@ -173,55 +183,115 @@ const Dashboard = () => {
           ))}
         </section>
 
-        <section className="graph-card">
-          <div className="card card-graph">
-            <div className="card-title">
-              <div>
-                <h3>{monthlyGrowth.title || "12-Month Client Growth"}</h3>
-                <p>{monthlyGrowth.subtitle || "Monthly active clients"}</p>
-              </div>
-              <button
-                onClick={() => setExpandGraph(true)}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: "#6d4cff",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontSize: "0.9rem",
-                }}
-              >
-                Expand
-              </button>
-              <span className="tag">{monthlyGrowth.yoyGrowth || "+0% YoY"}</span>
-            </div>
-            <div className="graph-wrapper">
-              <div className="graph-y-axis">
-                <span>100</span>
-                <span>80</span>
-                <span>60</span>
-                <span>40</span>
-                <span>20</span>
-                <span>0</span>
-              </div>
-              <div className="graph-area">
-                <div className="graph-bars">
-                  {chartData.map((item) => {
-                    const height = `${Math.max(((item.activeClients || 0) / maxValue) * 100, 8)}%`;
-                    return (
-                      <div key={item.month} className="graph-col">
-                        <div className="bar" style={{ height : height}}></div>
-                        <span>{item.month}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="graph-xline"></div>
-              </div>
-            </div>
+        <section style={{ padding: "1rem 0" }}>
+      <div style={{
+        background: "#141414",
+        borderRadius: 12,
+        padding: "1.25rem 1.5rem",
+        border: "0.5px solid rgba(255,255,255,0.08)",
+        fontFamily: "'Courier New', monospace",
+      }}>
+        {/* Card Title */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
+          <div>
+            <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 500, margin: "0 0 4px" }}>
+              {monthlyGrowth.title}
+            </h3>
+            <p style={{ color: "#888", fontSize: 13, margin: 0 }}>
+              {monthlyGrowth.subtitle}
+            </p>
           </div>
-        </section>
+          <span style={{
+            background: "rgba(50,200,120,0.12)",
+            color: "#3ecf72",
+            fontSize: 12,
+            padding: "4px 10px",
+            borderRadius: 20,
+            border: "0.5px solid rgba(62,207,114,0.3)",
+            whiteSpace: "nowrap",
+          }}>
+            {monthlyGrowth.yoyGrowth}
+          </span>
+        </div>
+
+        {/* Chart Area */}
+        <div style={{ position: "relative", height: 260, display: "flex", alignItems: "flex-end", gap: 6, paddingBottom: 28, paddingRight: 44 }}>
+          
+          {/* Grid Lines */}
+          <div style={{ position: "absolute", left: 0, right: 44, top: 0, bottom: 28, pointerEvents: "none" }}>
+            {ticks.map((t, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                left: 0, right: 0,
+                bottom: `${(t / MAX_VAL) * 100}%`,
+                height: "0.5px",
+                background: "rgba(255,255,255,0.06)",
+              }} />
+            ))}
+          </div>
+
+          {/* Y Axis */}
+          <div style={{ position: "absolute", right: 0, top: 0, bottom: 28, width: 40 }}>
+            {ticks.map((t, i) => (
+              <div key={i} style={{
+                position: "absolute",
+                bottom: `calc(${(t / MAX_VAL) * 100}% - 7px)`,
+                right: 4,
+                fontSize: 11,
+                color: "#555",
+              }}>
+                {t}
+              </div>
+            ))}
+          </div>
+
+          {/* Bars */}
+          {monthlyGrowth.chartData.map((item, i) => (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", position: "relative" }}>
+              
+              {/* Bar */}
+              <div style={{
+                width: "100%",
+                height: `${(item.activeClients / MAX_VAL) * 100}%`,
+                background: "#fff",
+                borderRadius: "2px 2px 0 0",
+                position: "relative",
+                minHeight: item.activeClients > 0 ? 2 : 0,
+                transition: "height 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+              }}>
+                {/* Value Label (only show if > 0) */}
+                {item.activeClients > 0 && (
+                  <div style={{
+                    position: "absolute",
+                    top: -20,
+                    left: "50%",
+                    transform: "translateX(-50%) rotate(-90deg)",
+                    fontSize: 11,
+                    color: "#9dff7a",
+                    whiteSpace: "nowrap",
+                  }}>
+                    {item.activeClients}
+                  </div>
+                )}
+              </div>
+
+              {/* Month Label */}
+              <div style={{
+                position: "absolute",
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                fontSize: 11,
+                color: "#666",
+                whiteSpace: "nowrap",
+              }}>
+                {item.month}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
 
         <section className="calendar-card">
           <div className="card card-calendar">
@@ -264,14 +334,24 @@ const Dashboard = () => {
                     className={`day ${event.appointments?.length ? "day-event" : ""}`}
                   >
                     <strong>{event.dayOfMonth}</strong>
-                    {event.appointments?.length > 0
-                      ? event.appointments.slice(0, 5).map((appointment, idx) => (
+                    {event.appointments?.length > 0 && (
+                      <>
+                        {event.appointments.slice(0, 5).map((appointment, idx) => (
                           <div className="day_data" key={idx}>
-                            <p>{appointment.clientName || appointment.clientName || "Appointment"}</p>
+                            <p>{appointment.clientName || "Appointment"}</p>
                             <small>{appointment.subtitle || appointment.time || appointment.description || ""}</small>
                           </div>
-                        ))
-                      : null}
+                        ))}
+                        {event.appointments.length > 5 && (
+                          <button
+                            className="read-more-button"
+                            onClick={() => handleOpenAppointmentModal(event)}
+                          >
+                            Read more
+                          </button>
+                        )}
+                      </>
+                    )}
                   </div>
                 ))}
               </div>
@@ -279,92 +359,30 @@ const Dashboard = () => {
           </div>
         </section>
       </main>
-      {expandGraph && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            backgroundColor: "rgba(0, 0, 0, 0.7)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-          onClick={() => setExpandGraph(false)}
-        >
-          <div
-            style={{
-              backgroundColor: "var(--surface)",
-              borderRadius: "20px",
-              padding: "30px",
-              width: "90%",
-              maxWidth: "1000px",
-              maxHeight: "80vh",
-              overflowY: "auto",
-              border: "1px solid var(--border)",
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
+      {expandedAppointmentEvent && (
+        <div className="appointment-modal-overlay" onClick={handleCloseAppointmentModal}>
+          <div className="appointment-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="appointment-modal-header">
               <div>
-                <h2 style={{ margin: "0 0 8px 0" }}>{monthlyGrowth.title || "12-Month Client Growth"}</h2>
-                <p style={{ margin: 0, color: "var(--text-muted)" }}>{monthlyGrowth.subtitle || "Monthly active clients"}</p>
+                <h2>{calendar.title || "Event Appointments"}</h2>
+                <p>Day {expandedAppointmentEvent.dayOfMonth} • {expandedAppointmentEvent.appointments.length} appointments</p>
               </div>
-              <button
-                onClick={() => setExpandGraph(false)}
-                style={{
-                  backgroundColor: "transparent",
-                  border: "none",
-                  fontSize: "24px",
-                  cursor: "pointer",
-                  color: "var(--text-primary)",
-                }}
-              >
+              <button className="modal-close-button" onClick={handleCloseAppointmentModal}>
                 ✕
               </button>
             </div>
-            <div style={{ height: "520px", marginBottom: "20px" }}>
-              <div className="graph-wrapper" style={{ height: "100%" }}>
-                <div className={expandGraph ? "graph-y-axis active_y_axis" : "graph-y-axis"}>
-                  <span>100</span>
-                  <span>90</span>
-                  <span>80</span>
-                  <span>70</span>
-                  <span>60</span>
-                  <span>50</span>
-                  <span>40</span>
-                  <span>30</span>
-                  <span>20</span>
-                  <span>10</span>
-                  <span>0</span>
+            <div className="appointment-modal-list">
+              {expandedAppointmentEvent.appointments.map((appointment, idx) => (
+                <div className="appointment-modal-item" key={idx}>
+                  <p>{appointment.clientName || "Appointment"}</p>
+                  <small>{appointment.subtitle || appointment.time || appointment.description || "No details available"}</small>
                 </div>
-                <div className="graph-area" style={{ height: "100%" }}>
-                  <div className="graph-bars" style={{ minHeight: "460px" }}>
-                    {chartData.map((item) => {
-                      const height = `${Math.max(((item.activeClients || 0) / expandedMaxValue) * 100, 8)}%`;
-                      return (
-                        <div key={item.month} className="graph-col">
-                          <div className="bar" style={{ height }}></div>
-                          <span>{item.month}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="graph-xline"></div>
-                </div>
-              </div>
+              ))}
             </div>
-           
           </div>
         </div>
       )}
+   
     </div>
   );
 };
