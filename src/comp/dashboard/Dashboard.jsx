@@ -1,9 +1,9 @@
-
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import "./Dashboard.scss";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { api } from "../../Api";
-
+import { UserContext } from "../../Context";
+import Loader from "../Loader/Loader";
 
 const months = [
   { value: 1, label: "Jan" },
@@ -35,59 +35,75 @@ const Dashboard = () => {
     yoyGrowth: "",
     chartData: [],
   });
+
+  const [loader, setLoader] = useState(false);
   const [calendar, setCalendar] = useState({
     title: "",
     subtitle: "",
     calendarEvents: [],
   });
 
-  const [expandedAppointmentEvent, setExpandedAppointmentEvent] = useState(null);
+  const [expandedAppointmentEvent, setExpandedAppointmentEvent] =
+    useState(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoader(true);
+      const response = await api.get("api/dashboard/dashboard");
+      const dashboardData = response?.data?.data;
+      if (dashboardData) {
+        setStats(dashboardData.stats || {});
+        setMonthlyGrowth(dashboardData.monthlyGrowth || {});
+        const calendarData = dashboardData.calendar || {};
+        setCalendar(calendarData);
+        if (calendarData.month) {
+          const monthItem = months.find(
+            (item) => item.label === calendarData.month,
+          );
+          if (monthItem) {
+            setSelectedMonth(monthItem.value);
+          }
+        }
+        if (calendarData.year) {
+          setSelectedYear(calendarData.year);
+        }
+      }
+    } catch (error) {
+      console.error("Dashboard API error:", error);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const loadCalendar = async () => {
+    try {
+      const response = await api.get(
+        `api/dashboard/calendar?month=${selectedMonth}&year=${selectedYear}`,
+      );
+      const calendarData = response?.data?.data;
+      if (calendarData) {
+        setCalendar(calendarData);
+      }
+    } catch (error) {
+      console.error("Calendar API error:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const response = await api.get("api/dashboard/dashboard");
-        const dashboardData = response?.data?.data;
-        if (dashboardData) {
-          setStats(dashboardData.stats || {});
-          setMonthlyGrowth(dashboardData.monthlyGrowth || {});
-            const calendarData = dashboardData.calendar || {};
-            setCalendar(calendarData);
-            if (calendarData.month) {
-              const monthItem = months.find((item) => item.label === calendarData.month);
-              if (monthItem) {
-                setSelectedMonth(monthItem.value);
-              }
-            }
-            if (calendarData.year) {
-              setSelectedYear(calendarData.year);
-            }
-        }
-      } catch (error) {
-        console.error("Dashboard API error:", error);
-      }
+    const fetchdashboard = async () => {
+      await fetchDashboardData();
     };
-    fetchDashboardData();
+    fetchdashboard();
   }, []);
 
   useEffect(() => {
-    const loadCalendar = async () => {
-      try {
-        const response = await api.get(
-          `api/dashboard/calendar?month=${selectedMonth}&year=${selectedYear}`,
-        );
-        const calendarData = response?.data?.data;
-        if (calendarData) {
-          setCalendar(calendarData);
-        }
-      } catch (error) {
-        console.error("Calendar API error:", error);
+    const fetchCalender = async () => {
+      if (selectedMonth && selectedYear) {
+        await loadCalendar();
       }
     };
 
-    if (selectedMonth && selectedYear) {
-      loadCalendar();
-    }
+    fetchCalender();
   }, [selectedMonth, selectedYear]);
 
   const handleMonthChange = (event) => {
@@ -150,12 +166,22 @@ const Dashboard = () => {
       className: "pink",
     },
   ];
- const MAX_VAL = Math.max(...monthlyGrowth.chartData.map(d => d.activeClients), 100);
-  const ticks = [0, Math.round(MAX_VAL * 0.25), Math.round(MAX_VAL * 0.5), Math.round(MAX_VAL * 0.75), MAX_VAL];
-  console.log(chartData, "chartData")
+  const MAX_VAL = Math.max(
+    ...monthlyGrowth.chartData.map((d) => d.activeClients),
+    100,
+  );
+  const ticks = [
+    0,
+    Math.round(MAX_VAL * 0.25),
+    Math.round(MAX_VAL * 0.5),
+    Math.round(MAX_VAL * 0.75),
+    MAX_VAL,
+  ];
 
   return (
     <div>
+      {" "}
+      {loader && <Loader />}
       <main className="dashboard">
         <header className="dashboard-header">
           <div className="notify">
@@ -184,121 +210,190 @@ const Dashboard = () => {
         </section>
 
         <section style={{ padding: "1rem 0" }}>
-      <div style={{
-        background: "#141414",
-        borderRadius: 12,
-        padding: "1.25rem 1.5rem",
-        border: "0.5px solid rgba(255,255,255,0.08)",
-        fontFamily: "'Courier New', monospace",
-      }}>
-        {/* Card Title */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.25rem" }}>
-          <div>
-            <h3 style={{ color: "#fff", fontSize: 18, fontWeight: 500, margin: "0 0 4px" }}>
-              {monthlyGrowth.title}
-            </h3>
-            <p style={{ color: "#888", fontSize: 13, margin: 0 }}>
-              {monthlyGrowth.subtitle}
-            </p>
-          </div>
-          <span style={{
-            background: "rgba(50,200,120,0.12)",
-            color: "#3ecf72",
-            fontSize: 12,
-            padding: "4px 10px",
-            borderRadius: 20,
-            border: "0.5px solid rgba(62,207,114,0.3)",
-            whiteSpace: "nowrap",
-          }}>
-            {monthlyGrowth.yoyGrowth}
-          </span>
-        </div>
-
-        {/* Chart Area */}
-        <div style={{ position: "relative", height: 260, display: "flex", alignItems: "flex-end", gap: 6, paddingBottom: 28, paddingRight: 44 }}>
-          
-          {/* Grid Lines */}
-          <div style={{ position: "absolute", left: 0, right: 44, top: 0, bottom: 28, pointerEvents: "none" }}>
-            {ticks.map((t, i) => (
-              <div key={i} style={{
-                position: "absolute",
-                left: 0, right: 0,
-                bottom: `${(t / MAX_VAL) * 100}%`,
-                height: "0.5px",
-                background: "rgba(255,255,255,0.06)",
-              }} />
-            ))}
-          </div>
-
-          {/* Y Axis */}
-          <div style={{ position: "absolute", right: 0, top: 0, bottom: 28, width: 40 }}>
-            {ticks.map((t, i) => (
-              <div key={i} style={{
-                position: "absolute",
-                bottom: `calc(${(t / MAX_VAL) * 100}% - 7px)`,
-                right: 4,
-                fontSize: 11,
-                color: "#555",
-              }}>
-                {t}
+          <div
+            style={{
+              background: "#141414",
+              borderRadius: 12,
+              padding: "1.25rem 1.5rem",
+              border: "0.5px solid rgba(255,255,255,0.08)",
+              fontFamily: "'Courier New', monospace",
+            }}
+          >
+            {/* Card Title */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "1.25rem",
+              }}
+            >
+              <div>
+                <h3
+                  style={{
+                    color: "#fff",
+                    fontSize: 18,
+                    fontWeight: 500,
+                    margin: "0 0 4px",
+                  }}
+                >
+                  {monthlyGrowth.title}
+                </h3>
+                <p style={{ color: "#888", fontSize: 13, margin: 0 }}>
+                  {monthlyGrowth.subtitle}
+                </p>
               </div>
-            ))}
-          </div>
-
-          {/* Bars */}
-          {monthlyGrowth.chartData.map((item, i) => (
-            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", height: "100%", position: "relative" }}>
-              
-              {/* Bar */}
-              <div style={{
-                width: "100%",
-                height: `${(item.activeClients / MAX_VAL) * 100}%`,
-                background: "#fff",
-                borderRadius: "2px 2px 0 0",
-                position: "relative",
-                minHeight: item.activeClients > 0 ? 2 : 0,
-                transition: "height 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
-              }}>
-                {/* Value Label (only show if > 0) */}
-                {item.activeClients > 0 && (
-                  <div style={{
-                    position: "absolute",
-                    top: -20,
-                    left: "50%",
-                    transform: "translateX(-50%) rotate(-90deg)",
-                    fontSize: 11,
-                    color: "#9dff7a",
-                    whiteSpace: "nowrap",
-                  }}>
-                    {item.activeClients}
-                  </div>
-                )}
-              </div>
-
-              {/* Month Label */}
-              <div style={{
-                position: "absolute",
-                bottom: 0,
-                left: "50%",
-                transform: "translateX(-50%)",
-                fontSize: 11,
-                color: "#666",
-                whiteSpace: "nowrap",
-              }}>
-                {item.month}
-              </div>
+              <span
+                style={{
+                  background: "rgba(50,200,120,0.12)",
+                  color: "#3ecf72",
+                  fontSize: 12,
+                  padding: "4px 10px",
+                  borderRadius: 20,
+                  border: "0.5px solid rgba(62,207,114,0.3)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {monthlyGrowth.yoyGrowth}
+              </span>
             </div>
-          ))}
-        </div>
-      </div>
-    </section>
+
+            {/* Chart Area */}
+            <div
+              style={{
+                position: "relative",
+                height: 260,
+                display: "flex",
+                alignItems: "flex-end",
+                gap: 6,
+                paddingBottom: 28,
+                paddingRight: 44,
+              }}
+            >
+              {/* Grid Lines */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 44,
+                  top: 0,
+                  bottom: 28,
+                  pointerEvents: "none",
+                }}
+              >
+                {ticks.map((t, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      right: 0,
+                      bottom: `${(t / MAX_VAL) * 100}%`,
+                      height: "0.5px",
+                      background: "rgba(255,255,255,0.06)",
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Y Axis */}
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 0,
+                  bottom: 28,
+                  width: 40,
+                }}
+              >
+                {ticks.map((t, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      bottom: `calc(${(t / MAX_VAL) * 100}% - 7px)`,
+                      right: 4,
+                      fontSize: 11,
+                      color: "#555",
+                    }}
+                  >
+                    {t}
+                  </div>
+                ))}
+              </div>
+
+              {/* Bars */}
+              {monthlyGrowth.chartData.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "flex-end",
+                    height: "100%",
+                    position: "relative",
+                  }}
+                >
+                  {/* Bar */}
+                  <div
+                    style={{
+                      width: "100%",
+                      height: `${(item.activeClients / MAX_VAL) * 100}%`,
+                      background: "#fff",
+                      borderRadius: "2px 2px 0 0",
+                      position: "relative",
+                      minHeight: item.activeClients > 0 ? 2 : 0,
+                      transition: "height 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+                    }}
+                  >
+                    {/* Value Label (only show if > 0) */}
+                    {item.activeClients > 0 && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: -20,
+                          left: "50%",
+                          transform: "translateX(-50%) rotate(-90deg)",
+                          fontSize: 11,
+                          color: "#9dff7a",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {item.activeClients}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Month Label */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      fontSize: 11,
+                      color: "#666",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {item.month}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
         <section className="calendar-card">
           <div className="card card-calendar">
             <div className="card-title">
               <div>
                 <h3>{calendar.title || "Client Calendar"}</h3>
-                <p>{calendar.subtitle || "Client meetings, tasks, and deadlines"}</p>
+                <p>
+                  {calendar.subtitle || "Client meetings, tasks, and deadlines"}
+                </p>
               </div>
               <div className="calendar-controls">
                 <select value={selectedMonth} onChange={handleMonthChange}>
@@ -336,12 +431,19 @@ const Dashboard = () => {
                     <strong>{event.dayOfMonth}</strong>
                     {event.appointments?.length > 0 && (
                       <>
-                        {event.appointments.slice(0, 5).map((appointment, idx) => (
-                          <div className="day_data" key={idx}>
-                            <p>{appointment.clientName || "Appointment"}</p>
-                            <small>{appointment.subtitle || appointment.time || appointment.description || ""}</small>
-                          </div>
-                        ))}
+                        {event.appointments
+                          .slice(0, 5)
+                          .map((appointment, idx) => (
+                            <div className="day_data" key={idx}>
+                              <p>{appointment.clientName || "Appointment"}</p>
+                              <small>
+                                {appointment.subtitle ||
+                                  appointment.time ||
+                                  appointment.description ||
+                                  ""}
+                              </small>
+                            </div>
+                          ))}
                         {event.appointments.length > 5 && (
                           <button
                             className="read-more-button"
@@ -360,14 +462,26 @@ const Dashboard = () => {
         </section>
       </main>
       {expandedAppointmentEvent && (
-        <div className="appointment-modal-overlay" onClick={handleCloseAppointmentModal}>
-          <div className="appointment-modal" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="appointment-modal-overlay"
+          onClick={handleCloseAppointmentModal}
+        >
+          <div
+            className="appointment-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="appointment-modal-header">
               <div>
                 <h2>{calendar.title || "Event Appointments"}</h2>
-                <p>Day {expandedAppointmentEvent.dayOfMonth} • {expandedAppointmentEvent.appointments.length} appointments</p>
+                <p>
+                  Day {expandedAppointmentEvent.dayOfMonth} •{" "}
+                  {expandedAppointmentEvent.appointments.length} appointments
+                </p>
               </div>
-              <button className="modal-close-button" onClick={handleCloseAppointmentModal}>
+              <button
+                className="modal-close-button"
+                onClick={handleCloseAppointmentModal}
+              >
                 ✕
               </button>
             </div>
@@ -375,14 +489,18 @@ const Dashboard = () => {
               {expandedAppointmentEvent.appointments.map((appointment, idx) => (
                 <div className="appointment-modal-item" key={idx}>
                   <p>{appointment.clientName || "Appointment"}</p>
-                  <small>{appointment.subtitle || appointment.time || appointment.description || "No details available"}</small>
+                  <small>
+                    {appointment.subtitle ||
+                      appointment.time ||
+                      appointment.description ||
+                      "No details available"}
+                  </small>
                 </div>
               ))}
             </div>
           </div>
         </div>
       )}
-   
     </div>
   );
 };

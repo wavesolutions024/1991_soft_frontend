@@ -32,6 +32,7 @@ const ClientForm = () => {
   const [artists, setArtists] = useState();
   const popup = localStorage.getItem("modal");
   const [clients, setClients] = useState();
+  const [clientList, setClientsList] = useState();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState(initialFormData);
   const [submitted, setSubmitted] = useState(false);
@@ -102,8 +103,9 @@ const ClientForm = () => {
       const response = await api.get(
         `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}`,
       );
+      const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
-         if (response.status === 200) {
+      if (response.status === 200) {
         setClients(response?.data?.data || []);
 
         setPagination((prev) => ({
@@ -113,6 +115,9 @@ const ClientForm = () => {
         }));
       }
 
+      if (dropResponse.status === 200) {
+        setClientsList(dropResponse?.data?.data);
+      }
     } catch (error) {
       console.log(error.response);
     } finally {
@@ -230,14 +235,11 @@ const ClientForm = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-     
       await getAllArtists();
     };
 
     fetchData();
   }, []);
-
-
 
   useEffect(() => {
     if (userData) {
@@ -248,7 +250,7 @@ const ClientForm = () => {
     }
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchConsent = async () => {
       if (pagination.page || pagination.size) {
         await getAllClient();
@@ -351,21 +353,19 @@ const ClientForm = () => {
                     <td>{client.price}</td>
                     <td>
                       {" "}
-                      {
-                        client.tattooImage  ?
- <img
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "cover",
-                        }}
-                        src={client.tattooImage}
-                        alt=""
-                      />
-                      :
-                      <p>No Image </p>
-                      }
-                     {" "}
+                      {client.tattooImage ? (
+                        <img
+                          style={{
+                            width: "100px",
+                            height: "100px",
+                            objectFit: "cover",
+                          }}
+                          src={client.tattooImage}
+                          alt=""
+                        />
+                      ) : (
+                        <p>No Image </p>
+                      )}{" "}
                     </td>
                     <td style={{}}>
                       <span
@@ -631,8 +631,8 @@ const ClientForm = () => {
                         <option value="" style={{ color: "black" }}>
                           Select Referal
                         </option>
-                        {clients &&
-                          clients?.map((item, index) => (
+                        {clientList &&
+                          clientList?.map((item, index) => (
                             <option
                               key={index}
                               value={item.name}

@@ -16,10 +16,11 @@ const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
-  const { franchiesData } = useContext(UserContext);
+  const { franchiesData,setLoader } = useContext(UserContext);
 
   const login = async (e) => {
     try {
+      setLoader(true)
       e.preventDefault();
       if (!form.username) {
         setError({
@@ -55,6 +56,8 @@ const Login = () => {
         });
       }
       console.log(error.response.data.message);
+    }finally{
+      setLoader(false)
     }
   };
 
