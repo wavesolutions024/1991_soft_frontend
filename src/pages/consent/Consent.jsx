@@ -106,12 +106,20 @@ const Consent = () => {
       console.log(error);
     }
   };
+
+  const isSignatureEmpty = () => {
+    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
+      if (id) return false; // id exists, old signature is fine — skip error
+      return true; // no id and canvas is empty — show error
+    }
+    return false; // canvas has a signature — skip error
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (sigCanvas.current.isEmpty() && !id) {
-        toast.error("Please sign first");
-        return;
+      if (isSignatureEmpty()) {
+        alert("Please provide a signature.");
+        return; // stop here
       }
 
       let validationError = false;
@@ -270,20 +278,25 @@ const Consent = () => {
   }, []);
 
   // camera
+  // Replace your startCamera function
   const startCamera = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" }, // Use rear camera on mobile
+        video: { facingMode: "environment" },
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setShowCamera(true);
+      setShowCamera(true); // video element renders AFTER this
     } catch (err) {
       alert("Unable to access camera: " + err.message);
     }
   };
+
+  // Add this useEffect — runs when showCamera becomes true and videoRef is ready
+  useEffect(() => {
+    if (showCamera && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+    }
+  }, [showCamera]);
 
   const stopCamera = () => {
     if (streamRef.current) {
@@ -387,10 +400,14 @@ const Consent = () => {
                       <td>{item.idProofNumber}</td>
                       <td>
                         {" "}
-                        {Object.entries(JSON.parse(item.medicalDesc))
-                          .filter(([_, value]) => value)
-                          .map(([key]) => key)
-                          .join(", ")}
+                        {item?.medicalDesc ? (
+                          Object.entries(JSON.parse(item?.medicalDesc))
+                            .filter(([_, value]) => value)
+                            .map(([key]) => key)
+                            .join(", ")
+                        ) : (
+                          <p>No Medical</p>
+                        )}
                       </td>
                       <td>
                         {item.idProofImage ? (
@@ -400,7 +417,7 @@ const Consent = () => {
                               height: "100px",
                               objectFit: "contain",
                             }}
-                            src={item.idProofImage}
+                            src={item?.idProofImage}
                             alt=""
                           />
                         ) : (
@@ -415,7 +432,7 @@ const Consent = () => {
                               height: "100px",
                               objectFit: "contain",
                             }}
-                            src={item.signature}
+                            src={item?.signature}
                             alt=""
                           />
                         ) : (
@@ -631,6 +648,7 @@ const Consent = () => {
                         ref={videoRef}
                         autoPlay
                         playsInline
+                        muted
                         style={{
                           width: "100%",
                           maxWidth: "500px",
@@ -767,61 +785,61 @@ const Consent = () => {
               <div className="medical_declaration">
                 <h4>Do you have any of the following ?</h4>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="diabetes"
-                    checked={values.medicalDesc.diabetes}
+                    checked={values?.medicalDesc?.diabetes}
                     onChange={handleMedicalChange}
                   />
                   <label>Diabetes</label>
                 </div>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="skinCondition"
-                    checked={values.medicalDesc.skinCondition}
+                    checked={values?.medicalDesc?.skinCondition}
                     onChange={handleMedicalChange}
                   />
                   <label>Skin Condition</label>
                 </div>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="allergies"
-                    checked={values.medicalDesc.allergies}
+                    checked={values?.medicalDesc?.allergies}
                     onChange={handleMedicalChange}
                   />
                   <label>Allergies</label>
                 </div>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="bloodThinningMedication"
-                    checked={values.medicalDesc.bloodThinningMedication}
+                    checked={values?.medicalDesc?.bloodThinningMedication}
                     onChange={handleMedicalChange}
                   />
                   <label>Blood Thinning Medication</label>
                 </div>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="pregnancyBreastfeeding"
-                    checked={values.medicalDesc.pregnancyBreastfeeding}
+                    checked={values?.medicalDesc?.pregnancyBreastfeeding}
                     onChange={handleMedicalChange}
                   />
                   <label>Pregnancy/Breastfeeding</label>
                 </div>
 
-                <div className="form-group">
+                <div className="check_form_group">
                   <input
                     type="checkbox"
                     name="otherMedicalCondition"
-                    checked={values.medicalDesc.otherMedicalCondition}
+                    checked={values?.medicalDesc?.otherMedicalCondition}
                     onChange={handleMedicalChange}
                   />
                   <label>Other Medical Condition</label>

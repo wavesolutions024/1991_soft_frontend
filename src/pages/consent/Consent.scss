@@ -105,6 +105,7 @@
   width: calc(100% - 250px);
   margin-left: 250px;
   height: 100svh;
+  overflow-y: auto;
   position: fixed;
   top: 0;
   left: 0;
@@ -112,6 +113,8 @@
   justify-content: center;
   align-items: center;
   gap: var(--unit);
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.603);
 
   .overlay {
     position: absolute;
@@ -119,7 +122,7 @@
     width: 100%;
     left: 0;
     right: 0;
-    background-color: rgba(0, 0, 0, 0.603);
+    
   }
 
   .artist_form_content {
@@ -272,7 +275,7 @@
       h4 {
         color: black;
       }
-      .form-group {
+      .check_form_group {
         display: flex;
         gap: 10px;
 
