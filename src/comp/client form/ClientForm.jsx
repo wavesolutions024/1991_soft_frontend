@@ -39,6 +39,7 @@ const ClientForm = () => {
   const [fileSelected, setFileSelected] = useState(false);
   const navigate = useNavigate();
   const [searchparams] = useSearchParams();
+  const [search, setSearch] = useState();
   const { userData } = useContext(UserContext);
   const clientid = searchparams.get("id");
   const [pagination, setPagination] = useState({
@@ -100,8 +101,9 @@ const ClientForm = () => {
   const getAllClient = async () => {
     try {
       setLoader(true);
+      const queryParam = search ? `&query=${encodeURIComponent(search)}` : "";
       const response = await api.get(
-        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}`,
+        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}${queryParam}`,
       );
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
@@ -151,6 +153,36 @@ const ClientForm = () => {
       formdata.append("clients", JSON.stringify(formData));
       formdata.append("tattooImage", tattooImage);
 
+      let phone = formData.mobileno.replace(/\D/g, "");
+
+      // Add India country code if not present
+      if (phone.length === 10) {
+        phone = `91${phone}`;
+      }
+
+      const message = `
+Hello ${formData.name},
+
+🎨 Tattoo Enquiry Details
+
+👤 Name: ${formData.name}
+📧 Email: ${formData.email}
+📱 Mobile: ${formData.mobileno}
+⚧ Gender: ${formData.gender}
+📍 Address: ${formData.address}
+
+🖋 Tattoo Details: ${formData.tattoodetails}
+📏 Size: ${formData.inch}
+💰 Price: ${formData.price}
+Store Location � :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+
+Instagram 
+� :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
+Mob: 9881742686.
+
+Thank you for visiting 1991 Tattoo Studio.
+`;
+
       let response;
       if (clientid) {
         response = await api.put(
@@ -183,6 +215,10 @@ const ClientForm = () => {
 
         getAllClient();
         navigate("/cleints");
+        const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
+          message,
+        )}`;
+        window.open(whatsappUrl, "_blank");
       }
     } catch (error) {
       console.log(error.response);
@@ -252,13 +288,13 @@ const ClientForm = () => {
 
   useEffect(() => {
     const fetchConsent = async () => {
-      if (pagination.page || pagination.size) {
+      if (pagination.page || pagination.size || search) {
         await getAllClient();
       }
     };
 
     fetchConsent();
-  }, [pagination.page || pagination.size]);
+  }, [pagination.page, pagination.size, search]);
 
   useEffect(() => {
     const getClient = async () => {
@@ -296,6 +332,7 @@ const ClientForm = () => {
     }
   };
 
+
   return (
     <>
       {loader && <Loader />}
@@ -316,6 +353,15 @@ const ClientForm = () => {
         {submitted && (
           <div className="success-message">✓ Client added successfully!</div>
         )}
+        <div class="search_input">
+          <label for="">Search Client</label>
+          <input
+            type="search"
+            placeholder="Enter Client Name / Number"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
 
         <div className="client-table-wrapper">
           <table className="client-table">
@@ -341,7 +387,11 @@ const ClientForm = () => {
                 clients.map((client) => (
                   <tr key={client.id}>
                     <td>{client.name}</td>
-                    <td>{client.mobileno}</td>
+                    <td>
+                      {userData?.role === "Admin"
+                        ? client?.mobileno
+                        : `${client?.mobileno.slice(0, 5)}*****`}
+                    </td>
                     <td>{client.email}</td>
                     <td>{client.clientType}</td>
                     <td>{client.referallName}</td>
@@ -442,7 +492,7 @@ const ClientForm = () => {
         </div>
 
         {(showModal || clientid) && (
-          <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-overlay">
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
@@ -623,25 +673,21 @@ const ClientForm = () => {
                     </div>
                     <div className="form-group">
                       <label>Referral</label>
-                      <select
+                      <input
+                        type="text"
                         name="referallName"
+                        list="clientListOptions"
+                        placeholder="Search or type referral name"
                         value={formData.referallName}
                         onChange={handleInputChange}
-                      >
-                        <option value="" style={{ color: "black" }}>
-                          Select Referal
-                        </option>
+                        autoComplete="off"
+                      />
+                      <datalist id="clientListOptions">
                         {clientList &&
-                          clientList?.map((item, index) => (
-                            <option
-                              key={index}
-                              value={item.name}
-                              style={{ color: "black" }}
-                            >
-                              {item?.name}
-                            </option>
+                          clientList.map((item, index) => (
+                            <option key={index} value={item?.name} />
                           ))}
-                      </select>
+                      </datalist>
                     </div>
                   </div>
                 </div>

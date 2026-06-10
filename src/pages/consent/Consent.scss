@@ -111,6 +111,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: var(--unit);
 
   .overlay {
     position: absolute;
@@ -122,7 +123,7 @@
   }
 
   .artist_form_content {
-    width: 50%;
+    width: 500px;
     height: auto;
     padding: var(--unit);
     background-color: var(--surface);
@@ -172,18 +173,16 @@
         flex-direction: column;
         gap: 8px;
 
-        .signatureCanvas{
+        .signatureCanvas {
           background-color: white;
         }
 
-        
-.field-error {
-  display: block;
-  margin-top: 8px;
-  color: #ff4757;
-  font-size: 12px;
-}
-
+        .field-error {
+          display: block;
+          margin-top: 8px;
+          color: #ff4757;
+          font-size: 12px;
+        }
 
         label {
           font-size: 13px;
@@ -208,11 +207,10 @@
           }
         }
         input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
 
         input,
         textarea,
@@ -225,7 +223,6 @@ input::-webkit-inner-spin-button {
           font-size: 14px;
           transition: var(--transition);
           font-family: inherit;
-        
 
           &::placeholder {
             color: var(--text-muted);
@@ -242,6 +239,60 @@ input::-webkit-inner-spin-button {
             background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 0 3px rgba(36, 181, 255, 0.1);
           }
+        }
+      }
+    }
+  }
+
+  .notes {
+    width: auto;
+    height: auto;
+    padding: var(--unit);
+    background-color: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--unit);
+    border-radius: 10PX;
+
+    h1 {
+      color: black;
+      width: 100%;
+      // padding-bottom: 8px;
+      border-bottom: 1px solid;
+    }
+
+    .medical_declaration {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      gap: var(--unit);
+
+      h4 {
+        color: black;
+      }
+      .form-group {
+        display: flex;
+        gap: 10px;
+
+        label {
+          color: black;
+        }
+      }
+    }
+
+    .info {
+      h4 {
+        color: black;
+        border-bottom: 1px solid;
+        padding-bottom: 5px;
+      }
+      ul {
+        margin-top: 10px;
+        margin-left: 20px;
+        li {
+          color: black;
         }
       }
     }

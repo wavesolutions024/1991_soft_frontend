@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import MainPanel from "../../comp/Main_panel/MainPanel";
 import "./Consent.scss";
 import { MdModeEditOutline } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
+
 import { api } from "../../Api";
 import { RxCross2 } from "react-icons/rx";
 import SignatureCanvas from "react-signature-canvas";
@@ -10,12 +10,21 @@ import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
 import { MdCameraAlt } from "react-icons/md";
+
 const Consent = () => {
   const payload = {
-    username:"",
+    username: "",
     clientId: "",
     idProofType: "",
     idProofNumber: "",
+    medicalDesc: {
+      diabetes: false,
+      skinCondition: false,
+      allergies: false,
+      bloodThinningMedication: false,
+      pregnancyBreastfeeding: false,
+      otherMedicalCondition: false,
+    },
   };
   const [modal, setModal] = useState(false);
   const [data, setData] = useState([]);
@@ -25,11 +34,13 @@ const Consent = () => {
   const sigCanvas = useRef(null);
   const [idprooffile, setIdprooffile] = useState();
   const navigate = useNavigate();
-  const {userData} = useContext(UserContext);
+  const { userData } = useContext(UserContext);
   const [showCamera, setShowCamera] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
   const [pagination, setPagination] = useState({
     page: 1,
     size: 10,
@@ -41,43 +52,6 @@ const Consent = () => {
   const id = searchParams.get("id");
   const clearSignature = () => {
     sigCanvas.current.clear();
-  };
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-        setShowCamera(true);
-      }
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-      toast.error("Unable to access camera. Please check permissions.");
-    }
-  };
-
-  const captureImage = () => {
-    if (videoRef.current && canvasRef.current) {
-      const context = canvasRef.current.getContext("2d");
-      canvasRef.current.width = videoRef.current.videoWidth;
-      canvasRef.current.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0);
-
-      canvasRef.current.toBlob((blob) => {
-        const file = new File([blob], `idproof_${Date.now()}.jpg`, { type: "image/jpeg" });
-        setIdprooffile(file);
-        stopCamera();
-        toast.success("Document captured successfully");
-      }, "image/jpeg");
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      setShowCamera(false);
-    }
   };
 
   const closeModal = () => {
@@ -175,11 +149,10 @@ const Consent = () => {
 
       const dataUrl = canvas.toDataURL("image/jpeg");
 
-  
       // Convert Base64 to File
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const date = new Date()
+      const date = new Date();
 
       const file = new File([blob], `${values.clientId}_${date}.jpeg`, {
         type: "image/jpeg",
@@ -189,26 +162,31 @@ const Consent = () => {
 
       formData.append("signature", file);
       formData.append("idproof", idprooffile);
-      formData.append("consent", JSON.stringify(values));
+      const filterValues = {
+        ...values,
+        medicalDesc: JSON.stringify(values.medicalDesc),
+      };
+      formData.append("consent", JSON.stringify(filterValues));
 
-      let response ; 
-      if(id){
+      let response;
+      if (id) {
         response = await api.put(`api/consent/editConsent?id=${id}`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      }else{
-       response =  await api.post("api/consent/add", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } else {
+        response = await api.post("api/consent/add", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
       }
-      
 
       if (response.status === 200) {
-       id ?  toast.success("Consent Edit Successfully") :  toast.success("Consent Added Successfully") ;
+        id
+          ? toast.success("Consent Edit Successfully")
+          : toast.success("Consent Added Successfully");
         setModal(false);
         setValues({
           clientId: "",
@@ -216,26 +194,24 @@ const Consent = () => {
           idProofNumber: "",
         });
         navigate("/consent");
-        getAllConsent()
+        getAllConsent();
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-
-
   const getConsentById = async (id) => {
     try {
       const response = await api.get(`api/consent/getConsentById?id=${id}`);
-     
-      const data = response?.data?.data
+
+      const data = response?.data?.data;
       setValues((prev) => ({
         ...prev,
-        username:userData?.username,
+        username: userData?.username,
         clientId: data.clientId,
         idProofType: data.idProofType,
-        idProofNumber: data.idProofNumber
+        idProofNumber: data.idProofNumber,
       }));
       navigate(`/consent?id=${id}`);
       setModal(true);
@@ -272,14 +248,100 @@ const Consent = () => {
     getConsetId();
   }, []);
 
-    useEffect(()=>{
-    if(userData){
-      setValues((prev)=>({
+  const handleMedicalChange = (e) => {
+    const { name, checked } = e.target;
+
+    setValues((prev) => ({
+      ...prev,
+      medicalDesc: {
+        ...prev.medicalDesc,
+        [name]: checked,
+      },
+    }));
+  };
+
+  useEffect(() => {
+    if (userData) {
+      setValues((prev) => ({
         ...prev,
-        username:userData?.username
-      }))
+        username: userData?.username,
+      }));
     }
-  },[])
+  }, []);
+
+  // camera
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" }, // Use rear camera on mobile
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setShowCamera(true);
+    } catch (err) {
+      alert("Unable to access camera: " + err.message);
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setShowCamera(false);
+  };
+
+  const captureImage = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) return;
+
+    // Set canvas size to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    // Draw video frame to canvas
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    // Convert to blob/file
+    canvas.toBlob(
+      (blob) => {
+        const fileName = `id_proof_${Date.now()}.jpg`;
+        const file = new File([blob], fileName, { type: "image/jpeg" });
+
+        setIdprooffile(file);
+
+        // Generate preview URL
+        const url = URL.createObjectURL(blob);
+        setPreviewUrl(url);
+
+        stopCamera();
+      },
+      "image/jpeg",
+      0.9,
+    );
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setIdprooffile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const removeFile = () => {
+    setIdprooffile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  };
 
   return (
     <>
@@ -309,7 +371,9 @@ const Consent = () => {
                   <th>Name</th>
                   <th>Id Proof Type</th>
                   <th>Id Proof Number</th>
+                  <th>Medical Desc</th>
                   <th>Id Proof Image</th>
+
                   <th>Signature</th>
                   <th>Action</th>
                 </tr>
@@ -322,26 +386,41 @@ const Consent = () => {
                       <td>{item.idProofType}</td>
                       <td>{item.idProofNumber}</td>
                       <td>
-                        <img
-                          style={{
-                            width: "100px",
-                            height: "100px",
-                            objectFit: "contain",
-                          }}
-                          src={item.idProofImage}
-                          alt=""
-                        />
+                        {" "}
+                        {Object.entries(JSON.parse(item.medicalDesc))
+                          .filter(([_, value]) => value)
+                          .map(([key]) => key)
+                          .join(", ")}
                       </td>
                       <td>
-                        <img
-                          style={{
-                            width: "100px",
-                            height: "100px",
-                            objectFit: "contain",
-                          }}
-                          src={item.signature}
-                          alt=""
-                        />
+                        {item.idProofImage ? (
+                          <img
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "contain",
+                            }}
+                            src={item.idProofImage}
+                            alt=""
+                          />
+                        ) : (
+                          <p>No Image</p>
+                        )}
+                      </td>
+                      <td>
+                        {item.signature ? (
+                          <img
+                            style={{
+                              width: "100px",
+                              height: "100px",
+                              objectFit: "contain",
+                            }}
+                            src={item.signature}
+                            alt=""
+                          />
+                        ) : (
+                          <p>No Image</p>
+                        )}
                       </td>
 
                       <td style={{ width: "200px" }}>
@@ -351,7 +430,6 @@ const Consent = () => {
                         >
                           <MdModeEditOutline />
                         </span>
-                        
                       </td>
                     </tr>
                   ))
@@ -511,26 +589,38 @@ const Consent = () => {
                   )}
                 </div>
                 <div className="form-group">
-                  <label>
-                    Id Proof File
-                    {/* <span className="required">*</span> */}
-                  </label>
+                  <label>Id Proof File</label>
+
                   {!showCamera ? (
-                    <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        marginBottom: "15px",
+                      }}
+                    >
                       <button
                         type="button"
                         onClick={startCamera}
                         className="btn"
-                        style={{ display: "flex", alignItems: "center", gap: "5px" }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
                       >
                         <MdCameraAlt /> Capture Document
                       </button>
-                      <label className="btn" style={{ cursor: "pointer", margin: 0 }}>
+                      <label
+                        className="btn"
+                        style={{ cursor: "pointer", margin: 0 }}
+                      >
                         Upload Document
                         <input
-                          onChange={(e) => setIdprooffile(e.target.files[0])}
+                          onChange={handleFileUpload}
                           type="file"
                           name="idprooffile"
+                          accept="image/*,.pdf"
                           style={{ display: "none" }}
                         />
                       </label>
@@ -546,19 +636,17 @@ const Consent = () => {
                           maxWidth: "500px",
                           borderRadius: "4px",
                           marginBottom: "10px",
+                          border: "2px solid #007bff",
                         }}
                       />
-                      <canvas
-                        ref={canvasRef}
-                        style={{ display: "none" }}
-                      />
+                      <canvas ref={canvasRef} style={{ display: "none" }} />
                       <div style={{ display: "flex", gap: "10px" }}>
                         <button
                           type="button"
                           onClick={captureImage}
                           className="btn"
                         >
-                          Take Picture
+                          📸 Take Picture
                         </button>
                         <button
                           type="button"
@@ -571,10 +659,78 @@ const Consent = () => {
                       </div>
                     </div>
                   )}
-                  {idprooffile && (
-                    <p style={{ color: "green", marginTop: "10px" }}>
-                      ✓ File selected: {idprooffile.name}
-                    </p>
+
+                  {/* ✅ Preview Section */}
+                  {previewUrl && idprooffile && (
+                    <div
+                      style={{
+                        marginTop: "15px",
+                        border: "1px solid #ddd",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        maxWidth: "500px",
+                        backgroundColor: "#f9f9f9",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        <p
+                          style={{ color: "green", margin: 0, fontWeight: 500 }}
+                        >
+                          ✓ {idprooffile.name}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={removeFile}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#dc3545",
+                            cursor: "pointer",
+                            fontSize: "18px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+
+                      {/* Image Preview */}
+                      {idprooffile.type.startsWith("image/") && (
+                        <img
+                          src={previewUrl}
+                          alt="ID Proof Preview"
+                          style={{
+                            width: "100%",
+                            borderRadius: "4px",
+                            objectFit: "contain",
+                            maxHeight: "300px",
+                          }}
+                        />
+                      )}
+
+                      {/* PDF Preview */}
+                      {idprooffile.type === "application/pdf" && (
+                        <div style={{ textAlign: "center", padding: "20px" }}>
+                          <span style={{ fontSize: "48px" }}>📄</span>
+                          <p style={{ color: "#555" }}>PDF Document</p>
+                          <a
+                            href={previewUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{ color: "#007bff" }}
+                          >
+                            View PDF
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
                 <div className="form-group">
@@ -605,6 +761,111 @@ const Consent = () => {
                   Add Consent
                 </button>
               </form>
+            </div>
+            <div class="notes">
+              <h1>Notes</h1>
+              <div className="medical_declaration">
+                <h4>Do you have any of the following ?</h4>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="diabetes"
+                    checked={values.medicalDesc.diabetes}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Diabetes</label>
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="skinCondition"
+                    checked={values.medicalDesc.skinCondition}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Skin Condition</label>
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="allergies"
+                    checked={values.medicalDesc.allergies}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Allergies</label>
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="bloodThinningMedication"
+                    checked={values.medicalDesc.bloodThinningMedication}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Blood Thinning Medication</label>
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="pregnancyBreastfeeding"
+                    checked={values.medicalDesc.pregnancyBreastfeeding}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Pregnancy/Breastfeeding</label>
+                </div>
+
+                <div className="form-group">
+                  <input
+                    type="checkbox"
+                    name="otherMedicalCondition"
+                    checked={values.medicalDesc.otherMedicalCondition}
+                    onChange={handleMedicalChange}
+                  />
+                  <label>Other Medical Condition</label>
+                </div>
+              </div>
+              <div class="info">
+                <h4>PLease Read All Of Things</h4>
+                <ul>
+                  <li>
+                    I am at least 18 years old and voluntarily choosing to
+                    receive a tattoo.
+                  </li>
+                  <li>
+                    I have disclosed all relevant medical conditions and
+                    medications.
+                  </li>
+                  <li>
+                    I understand that tattooing involves risks including
+                    infection, allergic reactions, swelling, discomfort, and
+                    possible scarring.
+                  </li>
+                  <li>
+                    I have approved the tattoo design, size, placement,
+                    spelling, and artwork before the procedure.
+                  </li>
+                  <li>
+                    I understand that tattoos are permanent and may require
+                    laser or surgical procedures for removal.
+                  </li>
+                  <li>
+                    I agree to follow all aftercare instructions provided by the
+                    tattoo artist.
+                  </li>
+                  <li>
+                    I understand that healed tattoo results may vary depending
+                    on skin type, placement, and aftercare.
+                  </li>
+                  <li>
+                    I release the tattoo artist and studio from liability
+                    resulting from undisclosed medical conditions or failure to
+                    follow aftercare instructions.
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         )}

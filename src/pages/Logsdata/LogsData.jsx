@@ -18,25 +18,26 @@ const LogsData = () => {
       const response = await api.get(
         `api/franchies/getAllLogs?page=${pagination.page}&size=${pagination.size}`,
       );
-
-      setData(response?.data?.data)
-      console.log(response);
+      setPagination((prev) => ({
+        ...prev,
+        total: response?.data?.pagination?.total,
+      }));
+      setData(response?.data?.data);
+   
     } catch (error) {
       console.log(error);
     }
   };
 
-
-  useEffect(()=>{
-    const getlogs = async ()=>{
-        if(pagination.page && pagination.size){
-            getAllLogs()
-        }
-    }
+  useEffect(() => {
+    const getlogs = async () => {
+      if (pagination.page && pagination.size) {
+        getAllLogs();
+      }
+    };
 
     getlogs();
-    
-  },[pagination.page && pagination.size])
+  }, [pagination.page && pagination.size]);
 
   return (
     <MainPanel>
@@ -52,43 +53,20 @@ const LogsData = () => {
           <table className="client-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Id Proof Type</th>
-                <th>Id Proof Number</th>
-                <th>Id Proof Image</th>
-                <th>Signature</th>
+                <th>user</th>
                 <th>Action</th>
+                <th>service</th>
+                <th>tableNames</th>
               </tr>
             </thead>
             <tbody>
               {data?.length > 0 ? (
                 data?.map((item) => (
                   <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.idProofType}</td>
-                    <td>{item.idProofNumber}</td>
-                    <td>
-                      <img
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "contain",
-                        }}
-                        src={item.idProofImage}
-                        alt=""
-                      />
-                    </td>
-                    <td>
-                      <img
-                        style={{
-                          width: "100px",
-                          height: "100px",
-                          objectFit: "contain",
-                        }}
-                        src={item.signature}
-                        alt=""
-                      />
-                    </td>
+                    <td>{item.user}</td>
+                    <td>{item.action}</td>
+                    <td>{item.service}</td>
+                    <td>{item.tableNames}</td>
                   </tr>
                 ))
               ) : (
