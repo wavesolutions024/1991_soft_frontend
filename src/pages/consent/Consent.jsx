@@ -179,8 +179,9 @@ const Consent = () => {
       // Convert Base64 to File
       const res = await fetch(dataUrl);
       const blob = await res.blob();
+      const date = new Date()
 
-      const file = new File([blob], `${values.clientId}.jpeg`, {
+      const file = new File([blob], `${values.clientId}_${date}.jpeg`, {
         type: "image/jpeg",
       });
 
@@ -231,6 +232,7 @@ const Consent = () => {
       const data = response?.data?.data
       setValues((prev) => ({
         ...prev,
+        username:userData?.username,
         clientId: data.clientId,
         idProofType: data.idProofType,
         idProofNumber: data.idProofNumber
@@ -511,7 +513,7 @@ const Consent = () => {
                 <div className="form-group">
                   <label>
                     Id Proof File
-                    <span className="required">*</span>
+                    {/* <span className="required">*</span> */}
                   </label>
                   {!showCamera ? (
                     <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
