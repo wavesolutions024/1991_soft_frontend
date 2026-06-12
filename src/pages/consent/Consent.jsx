@@ -108,106 +108,82 @@ const Consent = () => {
   };
 
   const isSignatureEmpty = () => {
-    if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-      if (id) return false; // id exists, old signature is fine — skip error
-      return true; // no id and canvas is empty — show error
-    }
-    return false; // canvas has a signature — skip error
+    return !sigCanvas.current || sigCanvas.current.isEmpty();
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (isSignatureEmpty()) {
-        alert("Please provide a signature.");
-        return; // stop here
-      }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Only require signature for new entries, not edits
+    if (!id && isSignatureEmpty()) {
+      alert("Please provide a signature.");
+      return;
+    }
 
-      let validationError = false;
+    let validationError = false;
 
-      if (!values.clientId) {
-        validationError = true;
+    if (!values.clientId) {
+      validationError = true;
+      setErrors((prev) => ({ ...prev, clientId: "Client Id is required" }));
+    }
 
-        setErrors((prev) => ({
-          ...prev,
-          clientId: "Client Id is required",
-        }));
-      }
+    if (!values.idProofType?.trim()) {
+      validationError = true;
+      setErrors((prev) => ({ ...prev, idProofType: "Id Proof Type is required" }));
+    }
 
-      if (!values.idProofType?.trim()) {
-        validationError = true;
+    if (!values.idProofNumber?.trim()) {
+      validationError = true;
+      setErrors((prev) => ({ ...prev, idProofNumber: "Id Proof Number is required" }));
+    }
 
-        setErrors((prev) => ({
-          ...prev,
-          idProofType: "Id Proof Type is required",
-        }));
-      }
+    if (validationError) return;
 
-      if (!values.idProofNumber?.trim()) {
-        validationError = true;
+    const formData = new FormData();
 
-        setErrors((prev) => ({
-          ...prev,
-          idProofNumber: "Id Proof Number is required",
-        }));
-      }
-
-      if (validationError) return;
-
+    // Only append signature if user actually drew on the canvas
+    if (sigCanvas.current && !sigCanvas.current.isEmpty()) {
       const canvas = sigCanvas.current.getCanvas();
-
       const dataUrl = canvas.toDataURL("image/jpeg");
-
-      // Convert Base64 to File
       const res = await fetch(dataUrl);
       const blob = await res.blob();
       const date = new Date();
-
       const file = new File([blob], `${values.clientId}_${date}.jpeg`, {
         type: "image/jpeg",
       });
-
-      const formData = new FormData();
-
       formData.append("signature", file);
-      formData.append("idproof", idprooffile);
-      const filterValues = {
-        ...values,
-        medicalDesc: JSON.stringify(values.medicalDesc),
-      };
-      formData.append("consent", JSON.stringify(filterValues));
-
-      let response;
-      if (id) {
-        response = await api.put(`api/consent/editConsent?id=${id}`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      } else {
-        response = await api.post("api/consent/add", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      }
-
-      if (response.status === 200) {
-        id
-          ? toast.success("Consent Edit Successfully")
-          : toast.success("Consent Added Successfully");
-        setModal(false);
-        setValues({
-          clientId: "",
-          idProofType: "",
-          idProofNumber: "",
-        });
-        navigate("/consent");
-        getAllConsent();
-      }
-    } catch (error) {
-      console.log(error);
     }
-  };
+
+    formData.append("idproof", idprooffile);
+    const filterValues = {
+      ...values,
+      medicalDesc: JSON.stringify(values.medicalDesc),
+    };
+    formData.append("consent", JSON.stringify(filterValues));
+
+    let response;
+    if (id) {
+      response = await api.put(`api/consent/editConsent?id=${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } else {
+      response = await api.post("api/consent/add", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+
+    if (response.status === 200) {
+      id
+        ? toast.success("Consent Edit Successfully")
+        : toast.success("Consent Added Successfully");
+      setModal(false);
+      setValues({ clientId: "", idProofType: "", idProofNumber: "" });
+      navigate("/consent");
+      getAllConsent();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const getConsentById = async (id) => {
     try {

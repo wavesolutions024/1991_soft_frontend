@@ -75,6 +75,12 @@ const Sidebar = () => {
             >
               Consent
             </Link>
+            <Link
+              to="/enquiry"
+              className={location.pathname === "/enquiry" ? "active" : ""}
+            >
+              Enquiry
+            </Link>
             {userData?.role === "Admin" && (
               <Link
                 to="/logs"

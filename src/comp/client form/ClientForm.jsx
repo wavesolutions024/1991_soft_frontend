@@ -161,20 +161,20 @@ const ClientForm = () => {
       }
 
       const message = `
-Hello ${formData.name},
+      Hello ${formData.name},
 
-🎨 Tattoo Enquiry Details
+     🎨 Tattoo Enquiry Details
 
-👤 Name: ${formData.name}
-📧 Email: ${formData.email}
-📱 Mobile: ${formData.mobileno}
-⚧ Gender: ${formData.gender}
-📍 Address: ${formData.address}
+     👤 Name: ${formData.name}
+     📧 Email: ${formData.email}
+     📱 Mobile: ${formData.mobileno}
+     ⚧ Gender: ${formData.gender}
+    📍 Address: ${formData.address}
 
-🖋 Tattoo Details: ${formData.tattoodetails}
-📏 Size: ${formData.inch}
-💰 Price: ${formData.price}
-Store Location � :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+    🖋 Tattoo Details: ${formData.tattoodetails}
+   📏 Size: ${formData.inch}
+   💰 Price: ${formData.price}
+    Store Location � :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
 Instagram 
 � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
@@ -331,7 +331,6 @@ Thank you for visiting 1991 Tattoo Studio.
       }
     }
   };
-
 
   return (
     <>
@@ -660,6 +659,9 @@ Thank you for visiting 1991 Tattoo Studio.
                         </option>
                         <option value="Google" style={{ color: "black" }}>
                           Google
+                        </option>
+                        <option value="Regular" style={{ color: "black" }}>
+                          Regular
                         </option>
                         <option value="Referal" style={{ color: "black" }}>
                           Referal

@@ -6,6 +6,7 @@ const clientForm = lazy(() => import("./pages/client_form/ClForm"));
 const artists = lazy(() => import("./pages/Artist/Artists"));
 const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/Logsdata/LogsData"));
+const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"))
 
 export const routes = [
   {
@@ -41,5 +42,11 @@ export const routes = [
     element: logs,
     exact: true,
     admin: true,
+  },
+  {
+    path: "/enquiry",
+    element: enquiry,
+    exact: true,
+
   },
 ];
