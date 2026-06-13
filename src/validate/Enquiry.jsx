@@ -13,7 +13,7 @@ export const validateEnquiry = (value) => {
       !/^\d{10}$/.test(normalizedPhone) && // 10-digit number
       !/^91\d{10}$/.test(normalizedPhone) // +91 followed by 10 digits
     ) {
-      error.mobileno = "Enter a valid mobile number";
+      error.mobileNo = "Enter a valid mobile number";
     }
   }
   if (!value.tattooStyle) {

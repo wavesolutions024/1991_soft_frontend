@@ -18,9 +18,12 @@ const LogsData = () => {
       const response = await api.get(
         `api/franchies/getAllLogs?page=${pagination.page}&size=${pagination.size}`,
       );
+
+      console.log(response)
       setPagination((prev) => ({
         ...prev,
         total: response?.data?.pagination?.total,
+        totalPages: response?.data?.pagination?.totalPages,
       }));
       setData(response?.data?.data);
    
@@ -31,13 +34,13 @@ const LogsData = () => {
 
   useEffect(() => {
     const getlogs = async () => {
-      if (pagination.page && pagination.size) {
+      if (pagination.page || pagination.size) {
         getAllLogs();
       }
     };
 
     getlogs();
-  }, [pagination.page && pagination.size]);
+  }, [pagination.page , pagination.size]);
 
   return (
     <MainPanel>

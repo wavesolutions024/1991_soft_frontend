@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import MainPanel from "../../comp/Main_panel/MainPanel";
 import "./Enquiry.scss";
 import { MdModeEditOutline } from "react-icons/md";
@@ -7,18 +7,23 @@ import { api } from "../../Api";
 import { validateEnquiry } from "../../validate/Enquiry";
 import Loader from "../../comp/Loader/Loader";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { UserContext } from "../../Context";
 const Enquiry = () => {
   const [modal, setModal] = useState(false);
   const [data, setData] = useState([]);
+  const { userData } = useContext(UserContext);
   const [loader, setLoader] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState({
     page: 1,
     size: 10,
     total: "",
     totalPages: "",
   });
+
+  const [searchParams] = useSearchParams();
+  const id = searchParams.get("id");
 
   const payload = {
     name: "",
@@ -32,7 +37,6 @@ const Enquiry = () => {
 
   const [values, setValues] = useState(payload);
   const [errors, setErrors] = useState(payload);
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,30 +57,7 @@ const Enquiry = () => {
 
   const closeModal = () => {
     setModal(false);
-  };
-
-  // Add Enquiry
-  const handleEnquiry = async (e) => {
-    try {
-      e.preventDefault();
-      const validateErrors = validateEnquiry(values);
-      setErrors(validateErrors);
-
-      if (Object.keys(validateErrors).length > 0) {
-        return;
-      }
-      setLoader(true);
-
-      const response = await api.post("/api/enquiry/add", values);
-      if (response?.status === 200) {
-        toast.success("Enquiry Added Successfully");
-        setModal(false);
-      }
-    } catch (error) {
-      console.log(error.response);
-    } finally {
-      setLoader(false);
-    }
+    navigate("/enquiry");
   };
 
   //   get all enquiry
@@ -97,9 +78,10 @@ const Enquiry = () => {
     }
   };
 
-  const editEnquiry = (id)=>{
-    navigate(`enquiry?id=${id}`)
-  }
+  const editEnquiry = (id) => {
+    navigate(`/enquiry?id=${id}`);
+    setModal(true);
+  };
 
   useEffect(() => {
     const fetchEnquiry = async () => {
@@ -110,13 +92,86 @@ const Enquiry = () => {
     fetchEnquiry();
   }, [pagination.page || pagination.size]);
 
+  // Add Enquiry
+  const handleEnquiry = async (e) => {
+    try {
+      e.preventDefault();
+      const validateErrors = validateEnquiry(values);
+      setErrors(validateErrors);
+
+      if (Object.keys(validateErrors).length > 0) {
+        return;
+      }
+      setLoader(true);
+
+      let response;
+
+      if (id) {
+        response = await api.put(
+          `/api/enquiry/updateEnquiry?id=${id}&username=${userData?.username}`,
+          values,
+        );
+      } else {
+        response = await api.post(
+          `/api/enquiry/add?username=${userData?.username}`,
+          values,
+        );
+      }
+
+      if (response?.status === 200) {
+        toast.success("Enquiry Added Successfully");
+        setModal(false);
+        getAllEnquiry();
+      }
+    } catch (error) {
+      console.log(error.response);
+    } finally {
+      setLoader(false);
+    }
+  };
+  // getEnquiry by id
+
+  const getEnquiryById = async (id) => {
+    try {
+      const response = await api.get(`/api/enquiry/getEnquiryById?id=${id}`);
+      const data = response?.data?.data;
+
+      if (response?.status === 200) {
+        setModal(true);
+        setValues((prev) => ({
+          ...prev,
+          name: data?.name,
+          email: data?.email,
+          mobileNo: data?.mobileNo,
+          gender: data?.gender,
+          tattooStyle: data?.tattooStyle,
+          tattooDescription: data?.tattooDescription,
+          budget: data?.budget,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchEnquiryById = async () => {
+      if (id) {
+        await getEnquiryById(id);
+      }
+    };
+    fetchEnquiryById();
+  }, [id]);
+
+
+
   return (
     <>
       {loader && <Loader />}
       <MainPanel>
         <div class="table-page-header">
           <div>
-            <h1>Consent Management</h1>
+            <h1>Enquiry Management</h1>
             <p>
               Review the client directory here. Click “Add New Enquiry to open
               the registration form.
@@ -143,6 +198,7 @@ const Enquiry = () => {
 
                   <th>Tattoo Description</th>
                   <th>Budget</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -157,10 +213,14 @@ const Enquiry = () => {
                       <td>{item.tattooStyle}</td>
                       <td>{item.tattooDescription}</td>
                       <td>{item.budget}</td>
+                      <td style={{ textTransform: "capitalize" }}>
+                        {item.status}
+                      </td>
 
                       <td style={{ width: "200px" }}>
                         <span
                           style={{ cursor: "pointer", marginRight: "10px" }}
+                          onClick={() => editEnquiry(item.id)}
                         >
                           <MdModeEditOutline />
                         </span>
@@ -266,9 +326,7 @@ const Enquiry = () => {
                     placeholder="Enter Client Email"
                     onChange={handleInputChange}
                   />
-                  {errors?.email && (
-                    <small className="field-error">{errors?.email}</small>
-                  )}
+               
                 </div>
                 <div className="form-group">
                   <label>

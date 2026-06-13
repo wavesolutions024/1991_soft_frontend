@@ -78,9 +78,9 @@ const ClientForm = () => {
   };
 
   const openModal = () => {
-    handleReset();
-    localStorage.setItem("modal", true);
 
+    localStorage.setItem("modal", true);
+     
     setShowModal(true);
   };
 
