@@ -81,6 +81,12 @@ const Sidebar = () => {
             >
               Enquiry
             </Link>
+            <Link
+              to="/appoinments  "
+              className={location.pathname === "/appoinments" ? "active" : ""}
+            >
+              Appoinments
+            </Link>
             {userData?.role === "Admin" && (
               <Link
                 to="/logs"

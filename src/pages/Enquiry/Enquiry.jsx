@@ -163,8 +163,6 @@ const Enquiry = () => {
     fetchEnquiryById();
   }, [id]);
 
-
-
   return (
     <>
       {loader && <Loader />}
@@ -197,6 +195,7 @@ const Enquiry = () => {
                   <th>Tattoo Style</th>
 
                   <th>Tattoo Description</th>
+                  <th>Platform</th>
                   <th>Budget</th>
                   <th>Status</th>
                   <th>Action</th>
@@ -212,6 +211,7 @@ const Enquiry = () => {
                       <td>{item.gender}</td>
                       <td>{item.tattooStyle}</td>
                       <td>{item.tattooDescription}</td>
+                      <td>{item.enquiryType ? item.enquiryType : "none"}</td>
                       <td>{item.budget}</td>
                       <td style={{ textTransform: "capitalize" }}>
                         {item.status}
@@ -326,7 +326,6 @@ const Enquiry = () => {
                     placeholder="Enter Client Email"
                     onChange={handleInputChange}
                   />
-               
                 </div>
                 <div className="form-group">
                   <label>
@@ -394,6 +393,20 @@ const Enquiry = () => {
                     name="tattooDescription"
                     placeholder="Enter Tattoo Description"
                   />
+                </div>
+
+                <div className="form-group">
+                  <label>Visit Platform</label>
+                  <select
+                    name="enquiryType"
+                    value={values.enquiryType}
+                    onChange={handleInputChange}
+                  >
+                    <option value="" style={{color:"black"}}>Select Platform</option>
+                    <option value="Walk in"  style={{color:"black"}} >Walk in</option>
+                    <option value="Instagram" style={{color:"black"}} >Instagram</option>
+                    <option value="Google" style={{color:"black"}} >Goggle</option>
+                  </select>
                 </div>
                 <div className="form-group">
                   <label>Tattoo Budget</label>

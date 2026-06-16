@@ -6,7 +6,8 @@ const clientForm = lazy(() => import("./pages/client_form/ClForm"));
 const artists = lazy(() => import("./pages/Artist/Artists"));
 const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/Logsdata/LogsData"));
-const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"))
+const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"));
+const appoinments = lazy(()=>import("./pages/appoinments/Appoinments"));
 
 export const routes = [
   {
@@ -46,6 +47,12 @@ export const routes = [
   {
     path: "/enquiry",
     element: enquiry,
+    exact: true,
+
+  },
+  {
+    path: "/appoinments",
+    element: appoinments,
     exact: true,
 
   },
