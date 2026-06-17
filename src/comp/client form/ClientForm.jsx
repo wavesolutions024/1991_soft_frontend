@@ -366,6 +366,7 @@ Thank you for visiting 1991 Tattoo Studio.
           <table className="client-table">
             <thead>
               <tr>
+                <th>Date</th>
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
@@ -385,6 +386,7 @@ Thank you for visiting 1991 Tattoo Studio.
               {clients ? (
                 clients.map((client) => (
                   <tr key={client.id}>
+                    <td>{client?.created_at?.split(" ")[0]}</td>
                     <td>{client.name}</td>
                     <td>
                       {userData?.role === "Admin"
