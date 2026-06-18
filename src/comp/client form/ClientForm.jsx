@@ -78,9 +78,8 @@ const ClientForm = () => {
   };
 
   const openModal = () => {
-
     localStorage.setItem("modal", true);
-     
+
     setShowModal(true);
   };
 
@@ -332,6 +331,31 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setLoader(true);
+      const response = await api.get(`api/client/exportallclients`, {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], { type: "text/csv" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "clients_export.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success("Export started");
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message || "Export failed");
+    } finally {
+      setLoader(false);
+    }
+  };
+
   return (
     <>
       {loader && <Loader />}
@@ -344,9 +368,22 @@ Thank you for visiting 1991 Tattoo Studio.
               the registration form.
             </p>
           </div>
-          <button className="add-client-btn" type="button" onClick={openModal}>
-            Add New Client
-          </button>
+          <div class="btn_list">
+            <button
+              className="add-client-btn"
+              type="button"
+              onClick={openModal}
+            >
+              Add New Client
+            </button>
+            <button
+              className="add-client-btn"
+              type="button"
+              onClick={handleExport}
+            >
+             Export data
+            </button>
+          </div>
         </div>
 
         {submitted && (

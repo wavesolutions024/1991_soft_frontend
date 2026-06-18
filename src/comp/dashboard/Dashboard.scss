@@ -4,6 +4,46 @@
   min-height: 100vh;
 }
 
+.notification_section {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background-color: var(--surface-strong);
+  z-index: 2;
+  padding: 24px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--unit);
+
+  h1 {
+    padding-bottom: 10px;
+    border-bottom: 1px solid white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    width: 100%;
+
+    span {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+  }
+
+  p {
+    width: 100%;
+    text-align: left;
+    text-transform: capitalize;
+    cursor: pointer;
+  }
+}
+
 .dashboard {
   padding: 32px 40px;
   display: flex;
@@ -17,11 +57,10 @@
   gap: 20px;
   align-items: center;
 
-  .notify{
+  .notify {
     position: relative;
 
-
-    .number{
+    .number {
       position: absolute;
       top: -6px;
       right: 25px;
@@ -34,25 +73,15 @@
       color: white;
       font-size: 0.75rem;
       font-weight: 700;
-
     }
 
-     .ghanta {
-    font-size: 30px;
-    padding-right: 30px;
-    cursor: pointer;
+    .ghanta {
+      font-size: 30px;
+      padding-right: 30px;
+      cursor: pointer;
+    }
   }
-
-  }
-
- 
 }
-
-
-
-
-
-
 
 .profile {
   display: inline-flex;
@@ -187,23 +216,21 @@
 .calendar-card {
   width: 100%;
 
-  .card-calendar{
-
-    .card-title{
-
-      .calendar-controls{
+  .card-calendar {
+    .card-title {
+      .calendar-controls {
         display: flex;
         justify-content: center;
         align-items: center;
         gap: var(--unit);
 
-        select{
+        select {
           padding: 8px;
           background-color: transparent;
           color: white;
           border-radius: 8px;
 
-          option{
+          option {
             color: black;
           }
         }
@@ -230,7 +257,7 @@
   color: var(--text-muted);
   font-size: 0.85rem;
 
-  &.active_y_axis{
+  &.active_y_axis {
     grid-template-rows: repeat(11, 1fr);
   }
 }
@@ -315,11 +342,11 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.05);
 
-  .day_data{
+  .day_data {
     width: 100%;
     border-bottom: 1px solid rgb(114, 114, 114);
     padding-bottom: 5px;
-    p{
+    p {
       margin: 0;
     }
   }
@@ -328,8 +355,6 @@
 .day.empty {
   background: transparent;
   border-color: transparent;
-
-
 }
 
 .day strong {

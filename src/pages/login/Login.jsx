@@ -16,11 +16,11 @@ const Login = () => {
     password: "",
   });
   const navigate = useNavigate();
-  const { franchiesData,setLoader } = useContext(UserContext);
+  const { franchiesData, setLoader } = useContext(UserContext);
 
   const login = async (e) => {
     try {
-      setLoader(true)
+      setLoader(true);
       e.preventDefault();
       if (!form.username) {
         setError({
@@ -41,8 +41,8 @@ const Login = () => {
 
       if (response.status === 200) {
         localStorage.setItem("isLoggedIn", true);
-        franchiesData();
         navigate("/");
+        await franchiesData();
       }
     } catch (error) {
       if (error.response.data.message === "Password Invalid") {
@@ -56,8 +56,8 @@ const Login = () => {
         });
       }
       console.log(error.response.data.message);
-    }finally{
-      setLoader(false)
+    } finally {
+      setLoader(false);
     }
   };
 
