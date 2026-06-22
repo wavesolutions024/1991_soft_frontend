@@ -20,6 +20,7 @@ const initialFormData = {
   clientType: "",
   referallName: "",
   dob: "",
+  paymentType: "",
   tattoodetails: "",
   inch: "",
   price: "",
@@ -173,7 +174,8 @@ const ClientForm = () => {
     🖋 Tattoo Details: ${formData.tattoodetails}
    📏 Size: ${formData.inch}
    💰 Price: ${formData.price}
-    Store Location � :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+   🧾 Payment Method: ${formData.paymentType}
+    Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
 Instagram 
 � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
@@ -258,6 +260,7 @@ Thank you for visiting 1991 Tattoo Studio.
         clientType: data.clientType,
         referallName: data.referallName,
         dob: data.dob,
+        paymentType: data.paymentType,
         tattoodetails: data.tattoodetails,
         inch: data.inch,
         price: data.price,
@@ -331,6 +334,8 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
+
+
   const handleExport = async () => {
     try {
       setLoader(true);
@@ -381,7 +386,7 @@ Thank you for visiting 1991 Tattoo Studio.
               type="button"
               onClick={handleExport}
             >
-             Export data
+              Export data
             </button>
           </div>
         </div>
@@ -412,6 +417,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <th>Tattoo Details</th>
                 <th>Tattoo Artist</th>
                 <th>DOB</th>
+                <th>Payment Method</th>
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
                 <th>Tattoo Price</th>
@@ -436,6 +442,7 @@ Thank you for visiting 1991 Tattoo Studio.
                     <td>{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
                     <td>{client.dob}</td>
+                    <td>{client.paymentType}</td>
                     <td>{client.gender}</td>
                     <td>{client.inch}</td>
                     <td>{client.price}</td>
@@ -822,7 +829,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <div className="form-section">
                   <h2 className="section-title">Additional Details</h2>
 
-                  <div className="form-row">
+                  <div className="form-row three-cols">
                     <div className="form-group">
                       <label>Tattoo Inch</label>
                       <input
@@ -842,6 +849,22 @@ Thank you for visiting 1991 Tattoo Studio.
                         value={formData.price}
                         onChange={handleInputChange}
                       />
+                    </div>
+                    <div className="form-group">
+                      <label>Payment Method</label>
+                      <select
+                        name="paymentType"
+                        value={formData.paymentType}
+                        onChange={handleInputChange}
+                      >
+                        <option style={{ color: "black" }}>
+                          Select Payment Method
+                        </option>
+
+                        <option style={{ color: "black" }}>Cash</option>
+                        <option style={{ color: "black" }}>Card</option>
+                        <option style={{ color: "black" }}>UPI</option>
+                      </select>
                     </div>
                   </div>
                 </div>
