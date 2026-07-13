@@ -24,6 +24,7 @@ const initialFormData = {
   tattoodetails: "",
   inch: "",
   price: "",
+  backDateEntry:""
 };
 
 const ClientForm = () => {
@@ -49,6 +50,8 @@ const ClientForm = () => {
     total: "",
     totalPages: "",
   });
+
+  console.log(formData)
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -249,6 +252,7 @@ Thank you for visiting 1991 Tattoo Studio.
     try {
       const response = await api.get(`api/client/getClientById?id=${id}`);
       const data = response?.data?.data;
+      console.log(data)
       setFormData((prev) => ({
         ...prev,
         name: data.name,
@@ -263,6 +267,7 @@ Thank you for visiting 1991 Tattoo Studio.
         paymentType: data.paymentType,
         tattoodetails: data.tattoodetails,
         inch: data.inch,
+        backDateEntry:data.backDateEntry?.split(" ")[0],
         price: data.price,
       }));
       console.log(data);
@@ -617,14 +622,7 @@ Thank you for visiting 1991 Tattoo Studio.
                         <small className="field-error">{error.email}</small>
                       )}
                     </div>
-                  </div>
-                </div>
-
-                <div className="form-section">
-                  <h2 className="section-title">Additional Details</h2>
-
-                  <div className="form-row">
-                    <div className="form-group">
+                     <div className="form-group">
                       <label>
                         Date of Birth
                         <span className="required">*</span>
@@ -639,6 +637,14 @@ Thank you for visiting 1991 Tattoo Studio.
                         <small className="field-error">{error.dob}</small>
                       )}
                     </div>
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h2 className="section-title">Additional Details</h2>
+
+                  <div className="form-row">
+                   
                     <div className="form-group">
                       <label>
                         Gender
@@ -665,6 +671,19 @@ Thank you for visiting 1991 Tattoo Studio.
                       {error.gender && (
                         <small className="field-error">{error.gender}</small>
                       )}
+                    </div>
+                     <div className="form-group">
+                      <label>
+                       Back Date Entry
+                       
+                      </label>
+                      <input
+                        type="date"
+                        name="backDateEntry"
+                        value={formData.backDateEntry}
+                        onChange={handleInputChange}
+                      />
+                     
                     </div>
                   </div>
 
@@ -851,20 +870,28 @@ Thank you for visiting 1991 Tattoo Studio.
                       />
                     </div>
                     <div className="form-group">
-                      <label>Payment Method</label>
+                      <label>Payment Method
+                        <span className="required">*</span>
+                      </label>
                       <select
                         name="paymentType"
                         value={formData.paymentType}
                         onChange={handleInputChange}
                       >
-                        <option style={{ color: "black" }}>
+                        <option value="" style={{ color: "black" }}>
                           Select Payment Method
                         </option>
 
-                        <option style={{ color: "black" }}>Cash</option>
-                        <option style={{ color: "black" }}>Card</option>
-                        <option style={{ color: "black" }}>UPI</option>
+                        <option value="Cash" style={{ color: "black" }}>Cash</option>
+                        <option value="Card" style={{ color: "black" }}>Card</option>
+                        <option value="UPI" style={{ color: "black" }}>UPI</option>
                       </select>
+
+                       {error.paymentType && (
+                        <small className="field-error">
+                          {error.paymentType}
+                        </small>
+                      )}
                     </div>
                   </div>
                 </div>

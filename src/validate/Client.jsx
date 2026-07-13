@@ -31,5 +31,9 @@ export const validateClient = (value) => {
     error.tattoodetails = "Tattoo Details is required";
   }
 
+  if(value.paymentType === ""){
+error.paymentType = "Payment Method is required"
+  }
+
   return error;
 };
