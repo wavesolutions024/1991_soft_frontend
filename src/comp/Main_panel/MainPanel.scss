@@ -6,6 +6,7 @@
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 2;
   }
 
   .children {
@@ -16,5 +17,41 @@
     height: 100svh;
     overflow-y: auto;
     background: radial-gradient(circle at top left, #0e3c52, #081617 40%);
+
+    .toggle_btn {
+      position: absolute;
+      height: 50px;
+      width: 50px;
+      left: 10px;
+      top: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 3;
+
+      &.active{
+        transform: rotate(180deg);
+      }
+    }
+  }
+}
+
+@media only screen and (max-width: 900px) {
+  .main_panel {
+
+    .mainsidebar{
+      left: -100%;
+
+      &.active{
+        left: 0;
+      }
+    }
+   
+    .children {
+      width: 100%;
+      margin-left: 0;
+    }
   }
 }
