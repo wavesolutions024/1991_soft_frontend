@@ -51,7 +51,7 @@ const ClientForm = () => {
     totalPages: "",
   });
 
-  console.log(formData)
+ 
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -289,6 +289,7 @@ Thank you for visiting 1991 Tattoo Studio.
       setFormData((prev) => ({
         ...prev,
         username: userData?.username,
+        tattooArtist:userData?.artistName
       }));
     }
   }, []);
@@ -672,19 +673,7 @@ Thank you for visiting 1991 Tattoo Studio.
                         <small className="field-error">{error.gender}</small>
                       )}
                     </div>
-                     <div className="form-group">
-                      <label>
-                       Back Date Entry
-                       
-                      </label>
-                      <input
-                        type="date"
-                        name="backDateEntry"
-                        value={formData.backDateEntry}
-                        onChange={handleInputChange}
-                      />
-                     
-                    </div>
+                    
                   </div>
 
                   <div className="form-row full">
@@ -738,6 +727,7 @@ Thank you for visiting 1991 Tattoo Studio.
                         </small>
                       )}
                     </div>
+                    
                     <div className="form-group">
                       <label>Referral</label>
                       <input
@@ -895,6 +885,20 @@ Thank you for visiting 1991 Tattoo Studio.
                     </div>
                   </div>
                 </div>
+                 <div className="form-group">
+                      <label style={{color:"red"}}>
+                       Back Date Entry
+                       
+                      </label>
+                      <input
+                      style={{borderColor:"red"}}
+                        type="date"
+                        name="backDateEntry"
+                        value={formData.backDateEntry}
+                        onChange={handleInputChange}
+                      />
+                     
+                    </div>
 
                 <div className="form-actions">
                   <button
