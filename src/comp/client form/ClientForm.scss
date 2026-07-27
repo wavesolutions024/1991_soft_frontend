@@ -26,6 +26,11 @@
 
   .form-header {
     margin-bottom: 32px;
+    margin-top: 32px;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
 
     h1 {
       font-size: 28px;
@@ -65,6 +70,8 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+
+
 
   &.full {
     grid-template-columns: 1fr;

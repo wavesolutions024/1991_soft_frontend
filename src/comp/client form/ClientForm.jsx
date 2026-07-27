@@ -387,13 +387,13 @@ Thank you for visiting 1991 Tattoo Studio.
             >
               Add New Client
             </button>
-            <button
+     {  userData?.role === "Admin" &&     <button
               className="add-client-btn"
               type="button"
               onClick={handleExport}
             >
               Export data
-            </button>
+            </button>}
           </div>
         </div>
 
@@ -445,7 +445,7 @@ Thank you for visiting 1991 Tattoo Studio.
                     <td>{client.email}</td>
                     <td>{client.clientType}</td>
                     <td>{client.referallName}</td>
-                    <td>{client.tattoodetails}</td>
+                    <td width="250px">{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
                     <td>{client.dob}</td>
                     <td>{client.paymentType}</td>
@@ -554,9 +554,26 @@ Thank you for visiting 1991 Tattoo Studio.
               </button>
 
               <div className="form-header">
-                <h1>New Client Registration</h1>
+           <div class="heading">
+                 <h1>New Client Registration</h1>
                 <p>Please fill in your information to register a new client.</p>
+           </div>
+                   <div className="form-group">
+                      <label style={{color:"red"}}>
+                       Back Date Entry
+                       
+                      </label>
+                      <input
+                      style={{borderColor:"red"}}
+                        type="date"
+                        name="backDateEntry"
+                        value={formData.backDateEntry}
+                        onChange={handleInputChange}
+                      />
+                     
+                    </div>
               </div>
+              
 
               {Object.keys(error).length > 0 && (
                 <div className="error-message">
@@ -752,7 +769,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <div className="form-section">
                   <h2 className="section-title">Tattoo Information</h2>
 
-                  <div className="form-row">
+                  <div className={userData?.role !== "Admin" ? "form-row full" : "form-row"} >
                     <div className="form-group">
                       <label>
                         Tattoo Details
@@ -771,7 +788,7 @@ Thank you for visiting 1991 Tattoo Studio.
                         </small>
                       )}
                     </div>
-                    <div className="form-group">
+                {userData?.role === "Admin" &&   <div className="form-group">
                       <label>
                         Select Artist
                         <span className="required">*</span>
@@ -801,7 +818,7 @@ Thank you for visiting 1991 Tattoo Studio.
                           {error.tattoodetails}
                         </small>
                       )}
-                    </div>
+                    </div>}
                   </div>
                 </div>
 
@@ -885,20 +902,7 @@ Thank you for visiting 1991 Tattoo Studio.
                     </div>
                   </div>
                 </div>
-                 <div className="form-group">
-                      <label style={{color:"red"}}>
-                       Back Date Entry
-                       
-                      </label>
-                      <input
-                      style={{borderColor:"red"}}
-                        type="date"
-                        name="backDateEntry"
-                        value={formData.backDateEntry}
-                        onChange={handleInputChange}
-                      />
-                     
-                    </div>
+              
 
                 <div className="form-actions">
                   <button

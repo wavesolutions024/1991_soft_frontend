@@ -144,13 +144,19 @@ const Dashboard = () => {
       className: "blue",
     },
     {
-      key: "todayAppointments",
-      title: "Today’s Appointments",
-      value: stats.todayAppointments.count,
-      growth: stats.todayAppointments.growth,
-      label: stats.todayAppointments.label,
-      className: "violet",
+      key: "totalClients",
+      title: "This Week Clients",
+      value: stats?.thisWeekClients?.count,
+      className: "blue",
     },
+    // {
+    //   key: "todayAppointments",
+    //   title: "Today’s Appointments",
+    //   value: stats.todayAppointments.count,
+    //   growth: stats.todayAppointments.growth,
+    //   label: stats.todayAppointments.label,
+    //   className: "violet",
+    // },
     {
       key: "totalEnquiries",
       title: "Total Enquiries",
@@ -230,13 +236,13 @@ const Dashboard = () => {
                 <IoNotificationsOutline />
               </span>
             </div>
-            <div className="profile">
+            {/* <div className="profile">
               <div>
                 <p>Admin Users</p>
                 <small>admin@lifestarter.com</small>
               </div>
               <div className="avatar">AU</div>
-            </div>
+            </div> */}
           </header>
 
           <section className="top-cards">
@@ -244,7 +250,7 @@ const Dashboard = () => {
               <article key={card.key} className={`stat-card ${card.className}`}>
                 <p>{card.title}</p>
                 <h2>{card.value}</h2>
-                <span>{`${card.growth || "+0%"} ${card.label || "last month"}`}</span>
+              {card.growth &&  <span>{`${card.growth || "+0%"} ${card.label || "last month"}`}</span>}
               </article>
             ))}
           </section>

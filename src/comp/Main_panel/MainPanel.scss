@@ -24,7 +24,7 @@
       width: 50px;
       left: 10px;
       top: 10px;
-      display: flex;
+      display: none;
       justify-content: center;
       align-items: center;
       font-size: 24px;
@@ -52,6 +52,10 @@
     .children {
       width: 100%;
       margin-left: 0;
+
+      .toggle_btn{
+        display: flex;
+      }
     }
   }
 }
