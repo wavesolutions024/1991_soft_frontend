@@ -8,6 +8,8 @@ import { MdModeEditOutline } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
+import vipTag from "../../assets/VIP.png";
+import semivipTag from "../../assets/SEMIvIP.png"
 
 const initialFormData = {
   username: "",
@@ -366,7 +368,7 @@ Thank you for visiting 1991 Tattoo Studio.
       setLoader(false);
     }
   };
-
+console.log(clients)
   return (
     <>
       {loader && <Loader />}
@@ -436,7 +438,22 @@ Thank you for visiting 1991 Tattoo Studio.
                 clients.map((client) => (
                   <tr key={client.id}>
                     <td>{client?.created_at?.split(" ")[0]}</td>
-                    <td>{client.name}</td>
+                    <td style={{position: "relative"}}>{client.name}
+                      {
+                        client?.VIP === 1 &&
+<span style={{position: "absolute",top:"0"}}>
+                        <img style={{width: "30px"}} src={vipTag} alt=""/>
+                      </span>
+                      }
+
+                       {
+                        client?.semiVIP === 1 &&
+<span style={{position: "absolute",top:"0"}}>
+                        <img style={{width: "30px"}} src={semivipTag} alt=""/>
+                      </span>
+                      }
+                      
+                    </td>
                     <td>
                       {userData?.role === "Admin"
                         ? client?.mobileno
