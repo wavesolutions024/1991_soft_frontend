@@ -9,7 +9,7 @@ import { MdDelete } from "react-icons/md";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
 import vipTag from "../../assets/VIP.png";
-import semivipTag from "../../assets/SEMIvIP.png"
+import semivipTag from "../../assets/SEMIvIP.png";
 
 const initialFormData = {
   username: "",
@@ -26,7 +26,7 @@ const initialFormData = {
   tattoodetails: "",
   inch: "",
   price: "",
-  backDateEntry:""
+  backDateEntry: "",
 };
 
 const ClientForm = () => {
@@ -52,8 +52,7 @@ const ClientForm = () => {
     total: "",
     totalPages: "",
   });
-
- 
+  const [vipFilter, setVipFilter] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -75,6 +74,12 @@ const ClientForm = () => {
     const file = e.target.files[0];
     setTattooImage(file);
     setFileSelected(!!file);
+  };
+
+  const handleVipFilterChange = (e) => {
+    setVipFilter(e.target.value);
+    // reset to page 1 whenever the filter changes, so you don't land on an empty page
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleReset = () => {
@@ -107,8 +112,16 @@ const ClientForm = () => {
     try {
       setLoader(true);
       const queryParam = search ? `&query=${encodeURIComponent(search)}` : "";
+
+      let vipParam = "";
+      if (vipFilter === "VIP") {
+        vipParam = "&vip=true";
+      } else if (vipFilter === "SemiVIP") {
+        vipParam = "&semiVip=true";
+      }
+
       const response = await api.get(
-        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}${queryParam}`,
+        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}${queryParam}${vipParam}`,
       );
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
@@ -254,7 +267,7 @@ Thank you for visiting 1991 Tattoo Studio.
     try {
       const response = await api.get(`api/client/getClientById?id=${id}`);
       const data = response?.data?.data;
-      console.log(data)
+      console.log(data);
       setFormData((prev) => ({
         ...prev,
         name: data.name,
@@ -269,7 +282,7 @@ Thank you for visiting 1991 Tattoo Studio.
         paymentType: data.paymentType,
         tattoodetails: data.tattoodetails,
         inch: data.inch,
-        backDateEntry:data.backDateEntry?.split(" ")[0],
+        backDateEntry: data.backDateEntry?.split(" ")[0],
         price: data.price,
       }));
       console.log(data);
@@ -291,20 +304,20 @@ Thank you for visiting 1991 Tattoo Studio.
       setFormData((prev) => ({
         ...prev,
         username: userData?.username,
-        tattooArtist:userData?.artistName
+        tattooArtist: userData?.artistName,
       }));
     }
   }, []);
 
   useEffect(() => {
     const fetchConsent = async () => {
-      if (pagination.page || pagination.size || search) {
+      if (pagination.page || pagination.size || search || vipFilter) {
         await getAllClient();
       }
     };
 
     fetchConsent();
-  }, [pagination.page, pagination.size, search]);
+  }, [pagination.page, pagination.size, search, vipFilter]);
 
   useEffect(() => {
     const getClient = async () => {
@@ -342,8 +355,6 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
-
-
   const handleExport = async () => {
     try {
       setLoader(true);
@@ -368,7 +379,7 @@ Thank you for visiting 1991 Tattoo Studio.
       setLoader(false);
     }
   };
-console.log(clients)
+  console.log(clients);
   return (
     <>
       {loader && <Loader />}
@@ -389,29 +400,51 @@ console.log(clients)
             >
               Add New Client
             </button>
-     {  userData?.role === "Admin" &&     <button
-              className="add-client-btn"
-              type="button"
-              onClick={handleExport}
-            >
-              Export data
-            </button>}
+            {userData?.role === "Admin" && (
+              <button
+                className="add-client-btn"
+                type="button"
+                onClick={handleExport}
+              >
+                Export data
+              </button>
+            )}
           </div>
         </div>
 
         {submitted && (
           <div className="success-message">✓ Client added successfully!</div>
         )}
-        <div class="search_input">
-          <label for="">Search Client</label>
-          <input
-            type="search"
-            placeholder="Enter Client Name / Number"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+        <div class="fil_section">
+          <div class="search_input">
+            <label for="">Search Client</label>
+            <input
+              type="search"
+              placeholder="Enter Client Name / Number"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
+          <div class="drp">
+            <label for="">VIP/SemiVIP</label>
+            <select
+              name="gender"
+              value={vipFilter}
+              onChange={handleVipFilterChange}
+            >
+              <option value="" style={{ color: "black" }}>
+                Select Type
+              </option>
+              <option value="VIP" style={{ color: "black" }}>
+                VIP
+              </option>
+              <option value="SemiVIP" style={{ color: "black" }}>
+                SemiVIP
+              </option>
+            </select>
+          </div>
+        </div>
         <div className="client-table-wrapper">
           <table className="client-table">
             <thead>
@@ -438,21 +471,23 @@ console.log(clients)
                 clients.map((client) => (
                   <tr key={client.id}>
                     <td>{client?.created_at?.split(" ")[0]}</td>
-                    <td style={{position: "relative"}}>{client.name}
-                      {
-                        client?.VIP === 1 &&
-<span style={{position: "absolute",top:"0"}}>
-                        <img style={{width: "30px"}} src={vipTag} alt=""/>
-                      </span>
-                      }
+                    <td style={{ position: "relative" }}>
+                      {client.name}
+                      {client?.VIP === 1 && (
+                        <span style={{ position: "absolute", top: "0" }}>
+                          <img style={{ width: "30px" }} src={vipTag} alt="" />
+                        </span>
+                      )}
 
-                       {
-                        client?.semiVIP === 1 &&
-<span style={{position: "absolute",top:"0"}}>
-                        <img style={{width: "30px"}} src={semivipTag} alt=""/>
-                      </span>
-                      }
-                      
+                      {client?.semiVIP === 1 && (
+                        <span style={{ position: "absolute", top: "0" }}>
+                          <img
+                            style={{ width: "30px" }}
+                            src={semivipTag}
+                            alt=""
+                          />
+                        </span>
+                      )}
                     </td>
                     <td>
                       {userData?.role === "Admin"
@@ -571,26 +606,23 @@ console.log(clients)
               </button>
 
               <div className="form-header">
-           <div class="heading">
-                 <h1>New Client Registration</h1>
-                <p>Please fill in your information to register a new client.</p>
-           </div>
-                   <div className="form-group">
-                      <label style={{color:"red"}}>
-                       Back Date Entry
-                       
-                      </label>
-                      <input
-                      style={{borderColor:"red"}}
-                        type="date"
-                        name="backDateEntry"
-                        value={formData.backDateEntry}
-                        onChange={handleInputChange}
-                      />
-                     
-                    </div>
+                <div class="heading">
+                  <h1>New Client Registration</h1>
+                  <p>
+                    Please fill in your information to register a new client.
+                  </p>
+                </div>
+                <div className="form-group">
+                  <label style={{ color: "red" }}>Back Date Entry</label>
+                  <input
+                    style={{ borderColor: "red" }}
+                    type="date"
+                    name="backDateEntry"
+                    value={formData.backDateEntry}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
-              
 
               {Object.keys(error).length > 0 && (
                 <div className="error-message">
@@ -657,7 +689,7 @@ console.log(clients)
                         <small className="field-error">{error.email}</small>
                       )}
                     </div>
-                     <div className="form-group">
+                    <div className="form-group">
                       <label>
                         Date of Birth
                         <span className="required">*</span>
@@ -679,7 +711,6 @@ console.log(clients)
                   <h2 className="section-title">Additional Details</h2>
 
                   <div className="form-row">
-                   
                     <div className="form-group">
                       <label>
                         Gender
@@ -707,7 +738,6 @@ console.log(clients)
                         <small className="field-error">{error.gender}</small>
                       )}
                     </div>
-                    
                   </div>
 
                   <div className="form-row full">
@@ -761,7 +791,7 @@ console.log(clients)
                         </small>
                       )}
                     </div>
-                    
+
                     <div className="form-group">
                       <label>Referral</label>
                       <input
@@ -786,7 +816,11 @@ console.log(clients)
                 <div className="form-section">
                   <h2 className="section-title">Tattoo Information</h2>
 
-                  <div className={userData?.role !== "Admin" ? "form-row full" : "form-row"} >
+                  <div
+                    className={
+                      userData?.role !== "Admin" ? "form-row full" : "form-row"
+                    }
+                  >
                     <div className="form-group">
                       <label>
                         Tattoo Details
@@ -805,37 +839,39 @@ console.log(clients)
                         </small>
                       )}
                     </div>
-                {userData?.role === "Admin" &&   <div className="form-group">
-                      <label>
-                        Select Artist
-                        <span className="required">*</span>
-                      </label>
-                      <select
-                        name="tattooArtist"
-                        value={formData.tattooArtist}
-                        onChange={handleInputChange}
-                      >
-                        <option style={{ color: "black" }}>
+                    {userData?.role === "Admin" && (
+                      <div className="form-group">
+                        <label>
                           Select Artist
-                        </option>
-                        {artists &&
-                          artists?.map((item, index) => (
-                            <option
-                              style={{ color: "black" }}
-                              key={index}
-                              value={item.artistName}
-                            >
-                              {item.artistName}
-                            </option>
-                          ))}
-                      </select>
+                          <span className="required">*</span>
+                        </label>
+                        <select
+                          name="tattooArtist"
+                          value={formData.tattooArtist}
+                          onChange={handleInputChange}
+                        >
+                          <option style={{ color: "black" }}>
+                            Select Artist
+                          </option>
+                          {artists &&
+                            artists?.map((item, index) => (
+                              <option
+                                style={{ color: "black" }}
+                                key={index}
+                                value={item.artistName}
+                              >
+                                {item.artistName}
+                              </option>
+                            ))}
+                        </select>
 
-                      {error.tattoodetails && (
-                        <small className="field-error">
-                          {error.tattoodetails}
-                        </small>
-                      )}
-                    </div>}
+                        {error.tattoodetails && (
+                          <small className="field-error">
+                            {error.tattoodetails}
+                          </small>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -894,7 +930,8 @@ console.log(clients)
                       />
                     </div>
                     <div className="form-group">
-                      <label>Payment Method
+                      <label>
+                        Payment Method
                         <span className="required">*</span>
                       </label>
                       <select
@@ -906,12 +943,18 @@ console.log(clients)
                           Select Payment Method
                         </option>
 
-                        <option value="Cash" style={{ color: "black" }}>Cash</option>
-                        <option value="Card" style={{ color: "black" }}>Card</option>
-                        <option value="UPI" style={{ color: "black" }}>UPI</option>
+                        <option value="Cash" style={{ color: "black" }}>
+                          Cash
+                        </option>
+                        <option value="Card" style={{ color: "black" }}>
+                          Card
+                        </option>
+                        <option value="UPI" style={{ color: "black" }}>
+                          UPI
+                        </option>
                       </select>
 
-                       {error.paymentType && (
+                      {error.paymentType && (
                         <small className="field-error">
                           {error.paymentType}
                         </small>
@@ -919,7 +962,6 @@ console.log(clients)
                     </div>
                   </div>
                 </div>
-              
 
                 <div className="form-actions">
                   <button
