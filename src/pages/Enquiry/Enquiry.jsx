@@ -30,9 +30,11 @@ const Enquiry = () => {
     email: "",
     mobileNo: "",
     gender: "",
+    service:"",
     tattooStyle: "",
     tattooDescription: "",
     budget: "",
+    enquiryType:"Walk in"
   };
 
   const [values, setValues] = useState(payload);
@@ -144,6 +146,7 @@ const Enquiry = () => {
           email: data?.email,
           mobileNo: data?.mobileNo,
           gender: data?.gender,
+          service: data?.service,
           tattooStyle: data?.tattooStyle,
           tattooDescription: data?.tattooDescription,
           budget: data?.budget,
@@ -192,8 +195,8 @@ const Enquiry = () => {
                   <th>Email</th>
                   <th>Mobile Number</th>
                   <th>Gender</th>
+                   <th>Service</th>
                   <th>Tattoo Style</th>
-
                   <th>Tattoo Description</th>
                   <th>Platform</th>
                   <th>Budget</th>
@@ -209,6 +212,7 @@ const Enquiry = () => {
                       <td>{item.email}</td>
                       <td>{item.mobileNo}</td>
                       <td>{item.gender}</td>
+                      <td>{item.serviceType}</td>
                       <td>{item.tattooStyle}</td>
                       <td>{item.tattooDescription}</td>
                       <td>{item.enquiryType ? item.enquiryType : "none"}</td>
@@ -297,7 +301,7 @@ const Enquiry = () => {
             <div class="overlay"></div>
             <div class="artist_form_content">
               <div class="top_side">
-                <h1>Add Consent</h1>
+                <h1>Add Enquiry</h1>
                 <div class="cross" onClick={closeModal}>
                   <RxCross2 />
                 </div>
@@ -370,8 +374,37 @@ const Enquiry = () => {
                 </div>
                 <div className="form-group">
                   <label>
-                    Tattoo Style
+                   Select Service
                     <span className="required">*</span>
+                  </label>
+                 
+                    <select
+                    name="service"
+                    onChange={handleInputChange}
+                    value={values.service}
+                  >
+                    <option value="" style={{ color: "black" }}>
+                      Select Service
+                    </option>
+                    <option value="Permanent Tattoo" style={{ color: "black" }}>
+                      Permanent Tattoo
+                    </option>
+                    <option value="Temporary Tattoo" style={{ color: "black" }}>
+                     Temporary Tattoo
+                    </option>
+                    <option value="Peircing" style={{ color: "black" }}>
+                     Peircing
+                    </option> 
+                  </select>
+
+                 {errors?.service && (
+                    <small className="field-error">{errors?.service}</small>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>
+                    Tattoo Style
+                    {/* <span className="required">*</span> */}
                   </label>
                   <input
                     onChange={handleInputChange}
@@ -380,9 +413,7 @@ const Enquiry = () => {
                     name="tattooStyle"
                     placeholder="Enter Tattoo Style"
                   />
-                  {errors?.tattooStyle && (
-                    <small className="field-error">{errors?.tattooStyle}</small>
-                  )}
+                
                 </div>
                 <div className="form-group">
                   <label>Tattoo Description</label>
@@ -395,7 +426,7 @@ const Enquiry = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                {/* <div className="form-group">
                   <label>Visit Platform</label>
                   <select
                     name="enquiryType"
@@ -407,7 +438,7 @@ const Enquiry = () => {
                     <option value="Instagram" style={{color:"black"}} >Instagram</option>
                     <option value="Google" style={{color:"black"}} >Goggle</option>
                   </select>
-                </div>
+                </div> */}
                 <div className="form-group">
                   <label>Tattoo Budget</label>
                   <input
