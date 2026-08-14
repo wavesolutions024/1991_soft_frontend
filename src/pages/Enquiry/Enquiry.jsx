@@ -222,12 +222,12 @@ const Enquiry = () => {
                       </td>
 
                       <td style={{ width: "200px" }}>
-                        <span
+                   { item?.enquiryType === "Walk in" &&  <span
                           style={{ cursor: "pointer", marginRight: "10px" }}
                           onClick={() => editEnquiry(item.id)}
                         >
                           <MdModeEditOutline />
-                        </span>
+                        </span>}
                       </td>
                     </tr>
                   ))
