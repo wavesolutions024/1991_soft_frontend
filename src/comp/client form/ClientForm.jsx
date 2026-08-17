@@ -126,6 +126,10 @@ const ClientForm = () => {
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
       if (response.status === 200) {
+
+        if(response?.data?.data?.length === 0){
+          setClients()
+        }
         setClients(response?.data?.data || []);
 
         setPagination((prev) => ({
@@ -191,8 +195,6 @@ const ClientForm = () => {
 
     🖋 Tattoo Details: ${formData.tattoodetails}
    📏 Size: ${formData.inch}
-   💰 Price: ${formData.price}
-   🧾 Payment Method: ${formData.paymentType}
     Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
 Instagram 
@@ -346,6 +348,7 @@ Thank you for visiting 1991 Tattoo Studio.
       if (response.status === 200) {
         toast.success("Deleted Successfully");
         getAllClient();
+        
       }
     } catch (error) {
       console.log(error);
@@ -379,7 +382,7 @@ Thank you for visiting 1991 Tattoo Studio.
       setLoader(false);
     }
   };
-  console.log(clients);
+
   return (
     <>
       {loader && <Loader />}
@@ -452,17 +455,17 @@ Thank you for visiting 1991 Tattoo Studio.
                 <th>Date</th>
                 <th>Name</th>
                 <th>Phone</th>
-                <th>Email</th>
+      
                 <th>Client Type</th>
                 <th>Referral Person</th>
                 <th>Tattoo Details</th>
                 <th>Tattoo Artist</th>
-                <th>DOB</th>
+                {/* <th>DOB</th> */}
                 <th>Payment Method</th>
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
                 <th>Tattoo Price</th>
-                <th>Tattoo Image</th>
+      
                 <th>Action</th>
               </tr>
             </thead>
@@ -494,17 +497,17 @@ Thank you for visiting 1991 Tattoo Studio.
                         ? client?.mobileno
                         : `${client?.mobileno.slice(0, 5)}*****`}
                     </td>
-                    <td>{client.email}</td>
+                    {/* <td>{client.email}</td> */}
                     <td>{client.clientType}</td>
                     <td>{client.referallName}</td>
                     <td width="250px">{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
-                    <td>{client.dob}</td>
+                    {/* <td>{client.dob}</td> */}
                     <td>{client.paymentType}</td>
                     <td>{client.gender}</td>
                     <td>{client.inch}</td>
                     <td>{client.price}</td>
-                    <td>
+                    {/* <td>
                       {" "}
                       {client.tattooImage ? (
                         <img
@@ -519,7 +522,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       ) : (
                         <p>No Image </p>
                       )}{" "}
-                    </td>
+                    </td> */}
                     <td style={{}}>
                       <span
                         style={{ cursor: "pointer", marginRight: "15px" }}
@@ -676,7 +679,7 @@ Thank you for visiting 1991 Tattoo Studio.
                   </div>
 
                   <div className="form-row">
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label>Email</label>
                       <input
                         type="email"
@@ -688,29 +691,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       {error.email && (
                         <small className="field-error">{error.email}</small>
                       )}
-                    </div>
-                    <div className="form-group">
-                      <label>
-                        Date of Birth
-                        <span className="required">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        name="dob"
-                        value={formData.dob}
-                        onChange={handleInputChange}
-                      />
-                      {error.dob && (
-                        <small className="field-error">{error.dob}</small>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-section">
-                  <h2 className="section-title">Additional Details</h2>
-
-                  <div className="form-row">
+                    </div> */}
                     <div className="form-group">
                       <label>
                         Gender
@@ -738,6 +719,29 @@ Thank you for visiting 1991 Tattoo Studio.
                         <small className="field-error">{error.gender}</small>
                       )}
                     </div>
+                    <div className="form-group">
+                      <label>
+                        Date of Birth
+                        <span className="required">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        name="dob"
+                        value={formData.dob}
+                        onChange={handleInputChange}
+                      />
+                      {error.dob && (
+                        <small className="field-error">{error.dob}</small>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="form-section">
+                  <h2 className="section-title">Additional Details</h2>
+
+                  <div className="form-row">
+                    
                   </div>
 
                   <div className="form-row full">
@@ -875,7 +879,7 @@ Thank you for visiting 1991 Tattoo Studio.
                   </div>
                 </div>
 
-                <div className="form-section">
+                {/* <div className="form-section">
                   <h2 className="section-title">Tattoo Image</h2>
 
                   <div className="form-row full">
@@ -903,7 +907,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="form-section">
                   <h2 className="section-title">Additional Details</h2>
