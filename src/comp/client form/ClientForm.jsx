@@ -83,7 +83,24 @@ const ClientForm = () => {
   };
 
   const handleReset = () => {
-    setFormData(initialFormData);
+    setFormData(() => ({
+      name: "",
+      email: "",
+      mobileno: "",
+      gender: "",
+      address: "",
+      clientType: "",
+      referallName: "",
+      dob: "",
+      paymentType: "",
+      tattoodetails: "",
+      inch: "",
+      price: "",
+      backDateEntry: "",
+      username: userData?.username,
+      tattooArtist: userData?.artistName,
+    }));
+
     setFileSelected(false);
     setSubmitted(false);
   };
@@ -126,9 +143,8 @@ const ClientForm = () => {
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
       if (response.status === 200) {
-
-        if(response?.data?.data?.length === 0){
-          setClients()
+        if (response?.data?.data?.length === 0) {
+          setClients();
         }
         setClients(response?.data?.data || []);
 
@@ -348,7 +364,6 @@ Thank you for visiting 1991 Tattoo Studio.
       if (response.status === 200) {
         toast.success("Deleted Successfully");
         getAllClient();
-        
       }
     } catch (error) {
       console.log(error);
@@ -358,30 +373,64 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
-  const handleExport = async () => {
-    try {
-      setLoader(true);
-      const response = await api.get(`api/client/exportallclients`, {
-        responseType: "blob",
-      });
+const handleExport = async () => {
+  try {
+    setLoader(true);
 
-      const blob = new Blob([response.data], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "clients_export.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success("Export started");
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message || "Export failed");
-    } finally {
-      setLoader(false);
+    const response = await api.get(
+      "api/client/exportClientExcel",
+      {
+        responseType: "blob",
+      }
+    );
+
+    // Create Excel Blob
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    // Create download URL
+    const url = window.URL.createObjectURL(blob);
+
+    // Create download link
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "clients_export.xlsx";
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Clients exported successfully");
+  } catch (error) {
+    console.error("Export error:", error);
+
+    let message = "Export failed";
+
+    // Because responseType is blob, backend errors also come as Blob
+    if (error?.response?.data instanceof Blob) {
+      try {
+        const text = await error.response.data.text();
+        const data = JSON.parse(text);
+
+        message = data?.message || message;
+      } catch (e) {
+        console.error("Error parsing response:", e);
+      }
+    } else {
+      message =
+        error?.response?.data?.message || message;
     }
-  };
+
+    toast.error(message);
+  } finally {
+    setLoader(false);
+  }
+};
 
   return (
     <>
@@ -455,7 +504,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <th>Date</th>
                 <th>Name</th>
                 <th>Phone</th>
-      
+
                 <th>Client Type</th>
                 <th>Referral Person</th>
                 <th>Tattoo Details</th>
@@ -465,7 +514,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
                 <th>Tattoo Price</th>
-      
+
                 <th>Action</th>
               </tr>
             </thead>
@@ -740,9 +789,7 @@ Thank you for visiting 1991 Tattoo Studio.
                 <div className="form-section">
                   <h2 className="section-title">Additional Details</h2>
 
-                  <div className="form-row">
-                    
-                  </div>
+                  <div className="form-row"></div>
 
                   <div className="form-row full">
                     <div className="form-group">
@@ -932,6 +979,11 @@ Thank you for visiting 1991 Tattoo Studio.
                         value={formData.price}
                         onChange={handleInputChange}
                       />
+                       {error.price && (
+                        <small className="field-error">
+                          {error.price}
+                        </small>
+                      )}
                     </div>
                     <div className="form-group">
                       <label>

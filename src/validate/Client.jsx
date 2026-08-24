@@ -5,8 +5,6 @@ export const validateClient = (value) => {
     error.name = "Name is required";
   }
 
-
-
   if (!value.mobileno?.trim()) {
     error.mobileno = "Mobile number is required";
   } else {
@@ -30,9 +28,15 @@ export const validateClient = (value) => {
   if (!value.tattoodetails) {
     error.tattoodetails = "Tattoo Details is required";
   }
+  
+  if (!value.price) {
+    error.price = "Price is required";
+  } else if (!/^[a-zA-Z0-9]+$/.test(String(value.price))) {
+    error.price = "Price cannot contain spaces or special characters";
+  }
 
-  if(value.paymentType === ""){
-error.paymentType = "Payment Method is required"
+  if (value.paymentType === "") {
+    error.paymentType = "Payment Method is required";
   }
 
   return error;
