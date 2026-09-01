@@ -522,7 +522,7 @@ const handleExport = async () => {
               {clients ? (
                 clients.map((client) => (
                   <tr key={client.id}>
-                    <td>{client?.created_at?.split(" ")[0]}</td>
+                    <td>{client?.backDateEntry?.split(" ")[0]}</td>
                     <td style={{ position: "relative" }}>
                       {client.name}
                       {client?.VIP === 1 && (
