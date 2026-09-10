@@ -1,14 +1,19 @@
 import "../sidebar/Sidebar.scss";
 import logo from "../../assets/1991_tattoo_logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { UserContext } from "../../Context";
 import { api } from "../../Api";
+import { RiArrowDropDownLine } from "react-icons/ri";
+import { MdOutlineKeyboardArrowUp } from "react-icons/md";
 
 const Sidebar = () => {
   const location = useLocation();
   const { userData } = useContext(UserContext);
   const navigate = useNavigate();
+  const [enquiryOpen, setEnquiryOpen] = useState(
+    location.pathname === "/enquiry",
+  );
   const logout = async () => {
     try {
       const response = await api.get("api/franchies/logout");
@@ -75,12 +80,30 @@ const Sidebar = () => {
             >
               Consent
             </Link>
-            <Link
-              to="/enquiry"
-              className={location.pathname === "/enquiry" ? "active" : ""}
-            >
-              Enquiry
-            </Link>
+            <div className="nav-dropdown">
+              <div
+                className={`nav-dropdown-toggle ${location.pathname === "/enquiry" ? "active" : ""}`}
+              >
+                <Link to="/enquiry" className="nav-dropdown-link">
+                  Enquiry
+                </Link>
+                <button
+                  type="button"
+                  className="dropdown-arrow"
+                  onClick={() => setEnquiryOpen((open) => !open)}
+                  aria-label={`${enquiryOpen ? "Close" : "Open"} enquiry menu`}
+                  aria-expanded={enquiryOpen}
+                >
+                  {enquiryOpen ? <MdOutlineKeyboardArrowUp /> : <RiArrowDropDownLine />}
+                </button>
+              </div>
+              {enquiryOpen && (
+                <div className="nav-dropdown-menu">
+                  <Link to="/landing">Landing</Link>
+                  
+                </div>
+              )}
+            </div>
             <Link
               to="/appoinments  "
               className={location.pathname === "/appoinments" ? "active" : ""}

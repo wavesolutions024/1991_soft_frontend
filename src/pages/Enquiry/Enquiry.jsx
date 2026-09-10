@@ -24,6 +24,7 @@ const Enquiry = () => {
 
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const addEnquiry = searchParams.get("add") === "true";
 
   const payload = {
     name: "",
@@ -165,6 +166,12 @@ const Enquiry = () => {
     };
     fetchEnquiryById();
   }, [id]);
+
+  useEffect(() => {
+    if (addEnquiry && !id) {
+      setModal(true);
+    }
+  }, [addEnquiry, id]);
 
   return (
     <>

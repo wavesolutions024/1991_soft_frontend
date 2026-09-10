@@ -8,6 +8,7 @@ const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/Logsdata/LogsData"));
 const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"));
 const appoinments = lazy(()=>import("./pages/appoinments/Appoinments"));
+const landing = lazy(()=>import("./comp/landing/Landing"));
 
 export const routes = [
   {
@@ -54,6 +55,11 @@ export const routes = [
     path: "/appoinments",
     element: appoinments,
     exact: true,
-
+  },
+  {
+    path: "/landing",
+    element: landing,
+    exact: true,
   },
 ];
+
