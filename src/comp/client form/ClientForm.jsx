@@ -198,27 +198,27 @@ const ClientForm = () => {
         phone = `91${phone}`;
       }
 
-      const message = `
-      Hello ${formData.name},
+//       const message = `
+//       Hello ${formData.name},
 
-     🎨 Tattoo Enquiry Details
+//      🎨 Tattoo Enquiry Details
 
-     👤 Name: ${formData.name}
-     📧 Email: ${formData.email}
-     📱 Mobile: ${formData.mobileno}
-     ⚧ Gender: ${formData.gender}
-    📍 Address: ${formData.address}
+//      👤 Name: ${formData.name}
+//      📧 Email: ${formData.email}
+//      📱 Mobile: ${formData.mobileno}
+//      ⚧ Gender: ${formData.gender}
+//     📍 Address: ${formData.address}
 
-    🖋 Tattoo Details: ${formData.tattoodetails}
-   📏 Size: ${formData.inch}
-    Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+//     🖋 Tattoo Details: ${formData.tattoodetails}
+//    📏 Size: ${formData.inch}
+//     Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
-Instagram 
-� :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
-Mob: 9881742686.
+// Instagram 
+// � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
+// Mob: 9881742686.
 
-Thank you for visiting 1991 Tattoo Studio.
-`;
+// Thank you for visiting 1991 Tattoo Studio.
+// `;
 
       let response;
       if (clientid) {
@@ -252,10 +252,10 @@ Thank you for visiting 1991 Tattoo Studio.
 
         getAllClient();
         navigate("/cleints");
-        const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
-          message,
-        )}`;
-        window.open(whatsappUrl, "_blank");
+        // const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
+        //   message,
+        // )}`;
+        // window.open(whatsappUrl, "_blank");
       }
     } catch (error) {
       console.log(error.response);
@@ -373,7 +373,7 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
-const handleExport = async () => {
+   const handleExport = async () => {
   try {
     setLoader(true);
 
