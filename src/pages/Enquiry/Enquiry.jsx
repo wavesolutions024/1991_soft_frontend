@@ -199,12 +199,12 @@ const Enquiry = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Email</th>
+                  {/* <th>Email</th> */}
                   <th>Mobile Number</th>
                   <th>Gender</th>
                    <th>Service</th>
                   <th>Tattoo Style</th>
-                  <th>Tattoo Description</th>
+                  {/* <th>Tattoo Description</th> */}
                   <th>Platform</th>
                   <th>Budget</th>
                   <th>Status</th>
@@ -216,12 +216,12 @@ const Enquiry = () => {
                   data.map((item) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
-                      <td>{item.email}</td>
+                      {/* <td>{item.email}</td> */}
                       <td>{item.mobileNo}</td>
                       <td>{item.gender}</td>
                       <td>{item.serviceType}</td>
                       <td>{item.tattooStyle}</td>
-                      <td>{item.tattooDescription}</td>
+                      {/* <td>{item.tattooDescription}</td> */}
                       <td>{item.enquiryType ? item.enquiryType : "none"}</td>
                       <td>{item.budget}</td>
                       <td style={{ textTransform: "capitalize" }}>
