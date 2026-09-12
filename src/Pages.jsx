@@ -57,7 +57,7 @@ export const routes = [
     exact: true,
   },
   {
-    path: "/landing",
+    path: "/landing_enquiry",
     element: landing,
     exact: true,
   },

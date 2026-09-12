@@ -99,7 +99,7 @@ const Sidebar = () => {
               </div>
               {enquiryOpen && (
                 <div className="nav-dropdown-menu">
-                  <Link to="/landing">Landing</Link>
+                  <Link to="/landing_enquiry">Landing</Link>
                   
                 </div>
               )}

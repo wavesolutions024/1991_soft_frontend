@@ -1,13 +1,53 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Landing.scss";
 import Loader from "../../comp/Loader/Loader";
 import MainPanel from "../Main_panel/MainPanel";
-
+import { api } from "../../Api";
+import { MdModeEditOutline } from "react-icons/md";
 const Landing = () => {
   const [data, setData] = useState([]);
+  const [loader, setLoader] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    size: 10,
+    total: "",
+    totalPages: "",
+  });
+
+  const getAllEnquiry = async () => {
+    try {
+      setLoader(true);
+      const response = await api.get(
+        `/api/enquiry/getAllLandingPageEnquiry?page=${pagination.page}&size=${pagination.size}`,
+      );
+      console.log(response);
+
+      const data = response?.data?.data;
+      const totalData = response?.data?.pagination?.total;
+      setData(data);
+      setPagination((prev) => ({
+        ...prev,
+        total: totalData,
+      }));
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchEnquiry = async () => {
+      if (pagination.page || pagination.size) {
+        await getAllEnquiry();
+      }
+    };
+    fetchEnquiry();
+  }, [pagination.page || pagination.size]);
 
   return (
     <>
+      {loader && <Loader />}
       <MainPanel>
         <div className="table-page-header">
           <div>
@@ -21,12 +61,16 @@ const Landing = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Date</th>
-                  <th>Time</th>
-                  <th>Contact</th>
-                  <th>Advance</th>
+                  <th>Email</th>
+                  <th>Mobile Number</th>
+                  <th>Gender</th>
+                  <th>Service</th>
+                  <th>Tattoo Style</th>
+                  <th>Tattoo Description</th>
                   <th>Platform</th>
-                  <th>Action</th>
+                  <th>Budget</th>
+                  <th>Status</th>
+                  {/* <th>Action</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -34,25 +78,24 @@ const Landing = () => {
                   data.map((item) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
-                      <td>{item.date ? item.date.split("T")[0] : item.date}</td>
-                      <td>{item.time}</td>
-                      <td>{item.contactNumber}</td>
-                      <td>{item.advanceAmount}</td>
-                      <td>{item.visitPlatform}</td>
-                      <td>
+                      <td>{item.email}</td>
+                      <td>{item.mobileNo}</td>
+                      <td>{item.gender}</td>
+                      <td>{item.serviceType}</td>
+                      <td>{item.tattooStyle}</td>
+                      <td>{item.tattooDescription}</td>
+                      <td>{item.enquiryType ? item.enquiryType : "none"}</td>
+                      <td>{item.budget}</td>
+                      <td style={{ textTransform: "capitalize" }}>
+                        {item.status}
+                      </td>
+                      {/* <td style={{ width: "200px" }}>
                         <span
-                          onClick={() => getAppointmentById(item.id)}
-                          style={{ marginRight: 8, cursor: "pointer" }}
+                          style={{ cursor: "pointer", marginRight: "10px" }}
                         >
                           <MdModeEditOutline />
                         </span>
-                        <span
-                          onClick={() => deleteAppoinment(item.id)}
-                          style={{ marginRight: 8, cursor: "pointer" }}
-                        >
-                          <MdDelete />
-                        </span>
-                      </td>
+                      </td> */}
                     </tr>
                   ))
                 ) : (
