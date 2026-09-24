@@ -18,6 +18,7 @@ const Artists = () => {
     artistNumber: "",
     username: "",
     password: "",
+    salary:""
   };
   const [modal, setModal] = useState(false);
   const [values, setValues] = useState(payload);
@@ -231,7 +232,7 @@ const Artists = () => {
             <div class="overlay"></div>
             <div class="artist_form_content">
               <div class="top_side">
-                <h1>Add Artists</h1>
+                <h1> {id ? "Edit Artist" : "Add Artists"} </h1>
                 <div class="cross" onClick={() => setModal(false)}>
                   <RxCross2 />
                 </div>
@@ -246,7 +247,7 @@ const Artists = () => {
                     value={values.artistName}
                     type="text"
                     name="artistName"
-                    placeholder="John Doe"
+                    placeholder="Enter Artist Name"
                     onChange={handleInputChange}
                   />
                   {errors.artistName && (
@@ -262,7 +263,7 @@ const Artists = () => {
                     value={values.artistNumber}
                     type="number"
                     name="artistNumber"
-                    placeholder="John Doe"
+                    placeholder="Enter Artist Contact Number"
                     onChange={handleInputChange}
                   />
                   {errors.artistNumber && (
@@ -278,7 +279,7 @@ const Artists = () => {
                     value={values.username}
                     type="text"
                     name="username"
-                    placeholder="John Doe"
+                    placeholder="Enter Login Username"
                     onChange={handleInputChange}
                   />
                   {errors.username && (
@@ -294,16 +295,32 @@ const Artists = () => {
                     value={values.password}
                     type="text"
                     name="password"
-                    placeholder="John Doe"
+                    placeholder="Enter Login Password"
                     onChange={handleInputChange}
                   />
                   {errors.password && (
                     <small className="field-error">{errors.password}</small>
                   )}
                 </div>
+                <div className="form-group">
+                  <label>
+                    Salary
+                    <span className="required">*</span>
+                  </label>
+                  <input
+                    value={values.salary}
+                    type="number"
+                    name="salary"
+                    placeholder="Enter Artist Salary"
+                    onChange={handleInputChange}
+                  />
+                  {errors.salary && (
+                    <small className="field-error">{errors.salary}</small>
+                  )}
+                </div>
                 <button className="btn" type="submit">
                   {" "}
-                  Add Artist
+                  {id ? "Edit Artist" : "Add Artist"}
                 </button>
               </form>
             </div>

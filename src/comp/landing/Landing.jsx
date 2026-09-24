@@ -3,7 +3,7 @@ import "./Landing.scss";
 import Loader from "../../comp/Loader/Loader";
 import MainPanel from "../Main_panel/MainPanel";
 import { api } from "../../Api";
-import { MdModeEditOutline } from "react-icons/md";
+// import { MdModeEditOutline } from "react-icons/md";
 const Landing = () => {
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
