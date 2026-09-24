@@ -78,6 +78,7 @@ const Artists = () => {
       if (response.status === 200) {
         getAllArtists();
         setModal(false);
+        setValues(payload)
        id ? toast.success("Artist Updated Successfully") : toast.success("Artist Added Successfully") ;
        navigate("/artists")
       }
@@ -132,6 +133,7 @@ const Artists = () => {
         artistName: data.artistName,
         artistNumber: data?.artistNumber,
         username: data?.username,
+        salary:data?.salary
       }));
 
       navigate(`/artists?id=${id}`);
@@ -156,6 +158,11 @@ const Artists = () => {
     };
     fetchArtits();
   }, [id]);
+
+  const handleClosePop = ()=>{
+    setModal(false);
+    navigate("/artists")
+  }
 
   return (
     <>
@@ -187,6 +194,7 @@ const Artists = () => {
                   <th>Contact</th>
                   <th>Username</th>
                   <th>Role</th>
+                  <th>Salary</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -198,6 +206,7 @@ const Artists = () => {
                       <td>{client.artistNumber}</td>
                       <td>{client.username}</td>
                       <td>{client.role}</td>
+                      <td>{client.salary}</td>
 
                       <td
                         style={{
@@ -233,7 +242,7 @@ const Artists = () => {
             <div class="artist_form_content">
               <div class="top_side">
                 <h1> {id ? "Edit Artist" : "Add Artists"} </h1>
-                <div class="cross" onClick={() => setModal(false)}>
+                <div class="cross" onClick={handleClosePop}>
                   <RxCross2 />
                 </div>
               </div>
@@ -319,7 +328,7 @@ const Artists = () => {
                   )}
                 </div>
                 <button className="btn" type="submit">
-                  {" "}
+                 
                   {id ? "Edit Artist" : "Add Artist"}
                 </button>
               </form>
