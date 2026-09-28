@@ -1,5 +1,6 @@
 import { lazy } from "react";
 
+
 const login = lazy(() => import("../src/pages/login/Login"));
 const home = lazy(() => import("../src/pages/home/Home"));
 const clientForm = lazy(() => import("./pages/client_form/ClForm"));
@@ -8,6 +9,8 @@ const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/Logsdata/LogsData"));
 const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"));
 const appoinments = lazy(()=>import("./pages/appoinments/Appoinments"));
+const finDashboard = lazy(()=>import("./pages/FinDashboard/FinDashboard"));
+const addExpense = lazy(()=>import("./pages/AddExpense/AddExpense"))
 
 export const routes = [
   {
@@ -55,5 +58,16 @@ export const routes = [
     element: appoinments,
     exact: true,
 
+  },
+
+  {
+    path: "/finance-dashboard",
+    element: finDashboard,
+    exact: true,
+  },
+   {
+    path: "/addExpense",
+    element: addExpense,
+    exact: true,
   },
 ];

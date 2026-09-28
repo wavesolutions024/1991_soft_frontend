@@ -95,6 +95,22 @@ const Sidebar = () => {
                 Logs
               </Link>
             )}
+             {userData?.role === "Admin" && (
+              <Link
+                to="/addExpense"
+                className={location.pathname === "/addExpense" ? "active" : ""}
+              >
+                Add Expense
+              </Link>
+            )}
+            {userData?.role === "Admin" && (
+              <Link
+                to="/finance-dashboard"
+                className={location.pathname === "/finance-dashboard" ? "active" : ""}
+              >
+                Finance
+              </Link>
+            )}
           </nav>
         </div>
         <div class="bottom">
