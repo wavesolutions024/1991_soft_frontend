@@ -19,5 +19,9 @@ export const validateArtists = (value,id) => {
     error.password = "Password is required";
   }
 
+  if(!value.salary){
+     error.salary = "Salary is required";
+  }
+
   return error
 };

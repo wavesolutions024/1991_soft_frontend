@@ -9,8 +9,12 @@ const consent = lazy(() => import("./pages/consent/Consent"));
 const logs = lazy(() => import("./pages/Logsdata/LogsData"));
 const enquiry = lazy(()=>import("./pages/Enquiry/Enquiry"));
 const appoinments = lazy(()=>import("./pages/appoinments/Appoinments"));
+<<<<<<< HEAD
 const finDashboard = lazy(()=>import("./pages/FinDashboard/FinDashboard"));
 const addExpense = lazy(()=>import("./pages/AddExpense/AddExpense"))
+=======
+const landing = lazy(()=>import("./comp/landing/Landing"));
+>>>>>>> a87c61149fb13b0b76cd4822e73752a2c4928084
 
 export const routes = [
   {
@@ -57,7 +61,11 @@ export const routes = [
     path: "/appoinments",
     element: appoinments,
     exact: true,
-
+  },
+  {
+    path: "/landing_enquiry",
+    element: landing,
+    exact: true,
   },
 
   {
@@ -71,3 +79,4 @@ export const routes = [
     exact: true,
   },
 ];
+

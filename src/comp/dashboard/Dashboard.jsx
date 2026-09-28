@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react";
+import {useEffect, useState } from "react";
 import "./Dashboard.scss";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { api } from "../../Api";
-import { UserContext } from "../../Context";
+// import { UserContext } from "../../Context";
 import Loader from "../Loader/Loader";
 import { RxCross2 } from "react-icons/rx";
 const months = [
@@ -53,6 +53,8 @@ const Dashboard = () => {
       setLoader(true);
       const response = await api.get("api/dashboard/dashboard");
       const dashboardData = response?.data?.data;
+
+      console.log(dashboardData, "dashboardData")
       if (dashboardData) {
         setStats(dashboardData.stats || {});
         setMonthlyGrowth(dashboardData.monthlyGrowth || {});
@@ -166,11 +168,11 @@ const Dashboard = () => {
       className: "orange",
     },
     {
-      key: "totalArtists",
-      title: "Total Artists",
-      value: stats.totalConsultants.count,
-      growth: stats.totalConsultants.growth,
-      label: stats.totalConsultants.label,
+      key: "todayAppointments",
+      title: "Total Appoinments",
+      value: stats.todayAppointments.count,
+      growth: stats.todayAppointments.growth,
+      label: stats.todayAppointments.label,
       className: "pink",
     },
   ];

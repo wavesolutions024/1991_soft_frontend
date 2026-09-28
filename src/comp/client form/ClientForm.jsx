@@ -83,7 +83,24 @@ const ClientForm = () => {
   };
 
   const handleReset = () => {
-    setFormData(initialFormData);
+    setFormData(() => ({
+      name: "",
+      email: "",
+      mobileno: "",
+      gender: "",
+      address: "",
+      clientType: "",
+      referallName: "",
+      dob: "",
+      paymentType: "",
+      tattoodetails: "",
+      inch: "",
+      price: "",
+      backDateEntry: "",
+      username: userData?.username,
+      tattooArtist: userData?.artistName,
+    }));
+
     setFileSelected(false);
     setSubmitted(false);
   };
@@ -126,6 +143,9 @@ const ClientForm = () => {
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
       if (response.status === 200) {
+        if (response?.data?.data?.length === 0) {
+          setClients();
+        }
         setClients(response?.data?.data || []);
 
         setPagination((prev) => ({
@@ -178,29 +198,27 @@ const ClientForm = () => {
         phone = `91${phone}`;
       }
 
-      const message = `
-      Hello ${formData.name},
+//       const message = `
+//       Hello ${formData.name},
 
-     🎨 Tattoo Enquiry Details
+//      🎨 Tattoo Enquiry Details
 
-     👤 Name: ${formData.name}
-     📧 Email: ${formData.email}
-     📱 Mobile: ${formData.mobileno}
-     ⚧ Gender: ${formData.gender}
-    📍 Address: ${formData.address}
+//      👤 Name: ${formData.name}
+//      📧 Email: ${formData.email}
+//      📱 Mobile: ${formData.mobileno}
+//      ⚧ Gender: ${formData.gender}
+//     📍 Address: ${formData.address}
 
-    🖋 Tattoo Details: ${formData.tattoodetails}
-   📏 Size: ${formData.inch}
-   💰 Price: ${formData.price}
-   🧾 Payment Method: ${formData.paymentType}
-    Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+//     🖋 Tattoo Details: ${formData.tattoodetails}
+//    📏 Size: ${formData.inch}
+//     Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
-Instagram 
-� :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
-Mob: 9881742686.
+// Instagram 
+// � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
+// Mob: 9881742686.
 
-Thank you for visiting 1991 Tattoo Studio.
-`;
+// Thank you for visiting 1991 Tattoo Studio.
+// `;
 
       let response;
       if (clientid) {
@@ -234,10 +252,10 @@ Thank you for visiting 1991 Tattoo Studio.
 
         getAllClient();
         navigate("/cleints");
-        const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
-          message,
-        )}`;
-        window.open(whatsappUrl, "_blank");
+        // const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(
+        //   message,
+        // )}`;
+        // window.open(whatsappUrl, "_blank");
       }
     } catch (error) {
       console.log(error.response);
@@ -355,31 +373,65 @@ Thank you for visiting 1991 Tattoo Studio.
     }
   };
 
-  const handleExport = async () => {
-    try {
-      setLoader(true);
-      const response = await api.get(`api/client/exportallclients`, {
-        responseType: "blob",
-      });
+   const handleExport = async () => {
+  try {
+    setLoader(true);
 
-      const blob = new Blob([response.data], { type: "text/csv" });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "clients_export.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-      toast.success("Export started");
-    } catch (error) {
-      console.log(error);
-      toast.error(error?.response?.data?.message || "Export failed");
-    } finally {
-      setLoader(false);
+    const response = await api.get(
+      "api/client/exportClientExcel",
+      {
+        responseType: "blob",
+      }
+    );
+
+    // Create Excel Blob
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    // Create download URL
+    const url = window.URL.createObjectURL(blob);
+
+    // Create download link
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "clients_export.xlsx";
+
+    // Trigger download
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Clients exported successfully");
+  } catch (error) {
+    console.error("Export error:", error);
+
+    let message = "Export failed";
+
+    // Because responseType is blob, backend errors also come as Blob
+    if (error?.response?.data instanceof Blob) {
+      try {
+        const text = await error.response.data.text();
+        const data = JSON.parse(text);
+
+        message = data?.message || message;
+      } catch (e) {
+        console.error("Error parsing response:", e);
+      }
+    } else {
+      message =
+        error?.response?.data?.message || message;
     }
-  };
-  console.log(clients);
+
+    toast.error(message);
+  } finally {
+    setLoader(false);
+  }
+};
+
   return (
     <>
       {loader && <Loader />}
@@ -452,17 +504,17 @@ Thank you for visiting 1991 Tattoo Studio.
                 <th>Date</th>
                 <th>Name</th>
                 <th>Phone</th>
-                <th>Email</th>
+
                 <th>Client Type</th>
                 <th>Referral Person</th>
                 <th>Tattoo Details</th>
                 <th>Tattoo Artist</th>
-                <th>DOB</th>
+                {/* <th>DOB</th> */}
                 <th>Payment Method</th>
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
                 <th>Tattoo Price</th>
-                <th>Tattoo Image</th>
+
                 <th>Action</th>
               </tr>
             </thead>
@@ -470,7 +522,7 @@ Thank you for visiting 1991 Tattoo Studio.
               {clients ? (
                 clients.map((client) => (
                   <tr key={client.id}>
-                    <td>{client?.created_at?.split(" ")[0]}</td>
+                    <td>{client?.backDateEntry?.split(" ")[0]}</td>
                     <td style={{ position: "relative" }}>
                       {client.name}
                       {client?.VIP === 1 && (
@@ -494,17 +546,17 @@ Thank you for visiting 1991 Tattoo Studio.
                         ? client?.mobileno
                         : `${client?.mobileno.slice(0, 5)}*****`}
                     </td>
-                    <td>{client.email}</td>
+                    {/* <td>{client.email}</td> */}
                     <td>{client.clientType}</td>
                     <td>{client.referallName}</td>
                     <td width="250px">{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
-                    <td>{client.dob}</td>
+                    {/* <td>{client.dob}</td> */}
                     <td>{client.paymentType}</td>
                     <td>{client.gender}</td>
                     <td>{client.inch}</td>
                     <td>{client.price}</td>
-                    <td>
+                    {/* <td>
                       {" "}
                       {client.tattooImage ? (
                         <img
@@ -519,7 +571,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       ) : (
                         <p>No Image </p>
                       )}{" "}
-                    </td>
+                    </td> */}
                     <td style={{}}>
                       <span
                         style={{ cursor: "pointer", marginRight: "15px" }}
@@ -676,7 +728,7 @@ Thank you for visiting 1991 Tattoo Studio.
                   </div>
 
                   <div className="form-row">
-                    <div className="form-group">
+                    {/* <div className="form-group">
                       <label>Email</label>
                       <input
                         type="email"
@@ -688,29 +740,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       {error.email && (
                         <small className="field-error">{error.email}</small>
                       )}
-                    </div>
-                    <div className="form-group">
-                      <label>
-                        Date of Birth
-                        <span className="required">*</span>
-                      </label>
-                      <input
-                        type="date"
-                        name="dob"
-                        value={formData.dob}
-                        onChange={handleInputChange}
-                      />
-                      {error.dob && (
-                        <small className="field-error">{error.dob}</small>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="form-section">
-                  <h2 className="section-title">Additional Details</h2>
-
-                  <div className="form-row">
+                    </div> */}
                     <div className="form-group">
                       <label>
                         Gender
@@ -738,7 +768,28 @@ Thank you for visiting 1991 Tattoo Studio.
                         <small className="field-error">{error.gender}</small>
                       )}
                     </div>
+                    <div className="form-group">
+                      <label>
+                        Date of Birth
+                        <span className="required">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        name="dob"
+                        value={formData.dob}
+                        onChange={handleInputChange}
+                      />
+                      {error.dob && (
+                        <small className="field-error">{error.dob}</small>
+                      )}
+                    </div>
                   </div>
+                </div>
+
+                <div className="form-section">
+                  <h2 className="section-title">Additional Details</h2>
+
+                  <div className="form-row"></div>
 
                   <div className="form-row full">
                     <div className="form-group">
@@ -875,7 +926,7 @@ Thank you for visiting 1991 Tattoo Studio.
                   </div>
                 </div>
 
-                <div className="form-section">
+                {/* <div className="form-section">
                   <h2 className="section-title">Tattoo Image</h2>
 
                   <div className="form-row full">
@@ -903,7 +954,7 @@ Thank you for visiting 1991 Tattoo Studio.
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="form-section">
                   <h2 className="section-title">Additional Details</h2>
@@ -928,6 +979,11 @@ Thank you for visiting 1991 Tattoo Studio.
                         value={formData.price}
                         onChange={handleInputChange}
                       />
+                       {error.price && (
+                        <small className="field-error">
+                          {error.price}
+                        </small>
+                      )}
                     </div>
                     <div className="form-group">
                       <label>

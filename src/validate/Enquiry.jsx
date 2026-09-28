@@ -16,8 +16,8 @@ export const validateEnquiry = (value) => {
       error.mobileNo = "Enter a valid mobile number";
     }
   }
-  if (!value.tattooStyle) {
-    error.tattooStyle = "Tattoo Style is required";
+  if (!value.service) {
+    error.service = "Service is required";
   }
 
   return error;
