@@ -198,27 +198,27 @@ const ClientForm = () => {
         phone = `91${phone}`;
       }
 
-//       const message = `
-//       Hello ${formData.name},
+      //       const message = `
+      //       Hello ${formData.name},
 
-//      🎨 Tattoo Enquiry Details
+      //      🎨 Tattoo Enquiry Details
 
-//      👤 Name: ${formData.name}
-//      📧 Email: ${formData.email}
-//      📱 Mobile: ${formData.mobileno}
-//      ⚧ Gender: ${formData.gender}
-//     📍 Address: ${formData.address}
+      //      👤 Name: ${formData.name}
+      //      📧 Email: ${formData.email}
+      //      📱 Mobile: ${formData.mobileno}
+      //      ⚧ Gender: ${formData.gender}
+      //     📍 Address: ${formData.address}
 
-//     🖋 Tattoo Details: ${formData.tattoodetails}
-//    📏 Size: ${formData.inch}
-//     Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
+      //     🖋 Tattoo Details: ${formData.tattoodetails}
+      //    📏 Size: ${formData.inch}
+      //     Store Location :https://maps.app.goo.gl/68YjtnccZhTg1Scz6
 
-// Instagram 
-// � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
-// Mob: 9881742686.
+      // Instagram
+      // � :https://www.instagram.com/1991tattoos?igsh=cDFyM3BucDI5cjM=
+      // Mob: 9881742686.
 
-// Thank you for visiting 1991 Tattoo Studio.
-// `;
+      // Thank you for visiting 1991 Tattoo Studio.
+      // `;
 
       let response;
       if (clientid) {
@@ -373,64 +373,60 @@ const ClientForm = () => {
     }
   };
 
-   const handleExport = async () => {
-  try {
-    setLoader(true);
+  const handleExport = async () => {
+    try {
+      setLoader(true);
 
-    const response = await api.get(
-      "api/client/exportClientExcel",
-      {
+      const response = await api.get("api/client/exportClientExcel", {
         responseType: "blob",
+      });
+
+      // Create Excel Blob
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+
+      // Create download URL
+      const url = window.URL.createObjectURL(blob);
+
+      // Create download link
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "clients_export.xlsx";
+
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Clients exported successfully");
+    } catch (error) {
+      console.error("Export error:", error);
+
+      let message = "Export failed";
+
+      // Because responseType is blob, backend errors also come as Blob
+      if (error?.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const data = JSON.parse(text);
+
+          message = data?.message || message;
+        } catch (e) {
+          console.error("Error parsing response:", e);
+        }
+      } else {
+        message = error?.response?.data?.message || message;
       }
-    );
 
-    // Create Excel Blob
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    // Create download URL
-    const url = window.URL.createObjectURL(blob);
-
-    // Create download link
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "clients_export.xlsx";
-
-    // Trigger download
-    document.body.appendChild(link);
-    link.click();
-
-    // Cleanup
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-
-    toast.success("Clients exported successfully");
-  } catch (error) {
-    console.error("Export error:", error);
-
-    let message = "Export failed";
-
-    // Because responseType is blob, backend errors also come as Blob
-    if (error?.response?.data instanceof Blob) {
-      try {
-        const text = await error.response.data.text();
-        const data = JSON.parse(text);
-
-        message = data?.message || message;
-      } catch (e) {
-        console.error("Error parsing response:", e);
-      }
-    } else {
-      message =
-        error?.response?.data?.message || message;
+      toast.error(message);
+    } finally {
+      setLoader(false);
     }
-
-    toast.error(message);
-  } finally {
-    setLoader(false);
-  }
-};
+  };
 
   return (
     <>
@@ -974,15 +970,19 @@ const ClientForm = () => {
                       <label>Tattoo Price</label>
                       <input
                         type="text"
+                        inputMode="numeric"
                         name="price"
                         placeholder="Tattoo Price"
                         value={formData.price}
-                        onChange={handleInputChange}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            price: e.target.value.replace(/\D/g, ""),
+                          })
+                        }
                       />
-                       {error.price && (
-                        <small className="field-error">
-                          {error.price}
-                        </small>
+                      {error.price && (
+                        <small className="field-error">{error.price}</small>
                       )}
                     </div>
                     <div className="form-group">
