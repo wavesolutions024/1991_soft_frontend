@@ -307,7 +307,7 @@ const [monthlyStats , setmonthlyStats] = useState([]);
                     <td>{row.name}</td>
                     <td>{row.clientType}</td>
                     <td>{row.price}</td>
-                    <td>{row.clientType}</td>
+                    <td>{row.paymentType}</td>
                     <td>
                       <span
                         className={`status-badge ${row.status.toLowerCase()}`}

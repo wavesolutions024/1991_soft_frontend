@@ -25,13 +25,13 @@ const Sidebar = () => {
     }
   };
 
-
+console.log(userData,"userData")
 
   return (
     <div>
       <aside className="sidebar">
         <div class="top">
-          {userData?.franchies === "1991 Tattoo Studio" ? (
+          {userData?.franchies === "1991 Tattoo Studio"  || userData?.franchiesCode === 1 ? (
             <div className="brand">
               <span className="brand-icon">
                 <img src={logo} alt="1991 Tattoo Logo" />

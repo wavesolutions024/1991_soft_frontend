@@ -35,10 +35,10 @@ const AddExpense = () => {
     paymentMethod: "",
   });
 
-  const [params,setParams] = useState({
+  const [params, setParams] = useState({
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
-  })
+  });
   const [reciept, setReceipt] = useState();
 
   const currentYear = new Date().getFullYear();
@@ -50,7 +50,6 @@ const AddExpense = () => {
 
   const getExpenses = async () => {
     try {
-    
       const response = await api.get(
         `api/expense/getAllExpense?month=${params.month}&year=${params.year}`,
       );
@@ -69,8 +68,7 @@ const AddExpense = () => {
     fetchExpense();
   }, [params]);
 
-
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     try {
       e.preventDefault();
       const formdata = new FormData();
@@ -88,28 +86,29 @@ const AddExpense = () => {
           paymentMethod: "",
         });
         setExpensePop(false);
-      await getExpenses()
+        await getExpenses();
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const deleteExpense = async (id)=>{
+  const deleteExpense = async (id) => {
     try {
-      const confirm = window.confirm("Are you sure you want to delete this expense?");
+      const confirm = window.confirm(
+        "Are you sure you want to delete this expense?",
+      );
       if (!confirm) return;
       const response = await api.delete(`api/expense/deleteExpense?id=${id}`);
 
-      if(response?.status === 200){
+      if (response?.status === 200) {
         toast.success("Expense Deleted Successfully");
-        await getExpenses()
+        await getExpenses();
       }
-   
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   return (
     <>
@@ -131,64 +130,72 @@ const AddExpense = () => {
               Add New Expense
             </button>
 
-             {datePopup ? (
-                        <div class="select_input">
-                          <select
-                            name=""
-                            id=""
-                            value={params.month}
-                            onChange={(e) =>
-                              setParams({ ...params, month: e.target.value })
-                            }
-                          >
-                            <option value="">Select Month</option>
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <option value="3">March</option>
-                            <option value="4">April</option>
-                            <option value="5">May</option>
-                            <option value="6">June</option>
-                            <option value="7">July</option>
-                            <option value="8">August</option>
-                            <option value="9">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                          </select>
-                          <select
-                            name=""
-                            id=""
-                            value={params.year}
-                            onChange={(e) =>
-                              setParams({ ...params, year: e.target.value })
-                            }
-                          >
-                            <option value="">Select Year</option>
-            
-                            {years &&
-                              years?.map((item, index) => (
-                                <option key={index} value={item}>{item}</option>
-                              ))}
-                          </select>
-                        </div>
-                      ) : (
-                        <button
-                          className="finance-period"
-                          type="button"
-                          onClick={() => setDatePopup(true)}
-                        >
-                          <span style={{display:"flex", gap:"10px"}}>
-                            {" "}
-                           <span> {params.month
-                              ? new Date(2000, params.month - 1).toLocaleString("en-US", {
-                                  month: "long",
-                                })
-                              : ""} </span>
-                           <span> {params.year}</span>
-                          </span>
-                          <FiChevronDown />
-                        </button>
-                      )}
+            {datePopup ? (
+              <div class="select_input">
+                <select
+                  name=""
+                  id=""
+                  value={params.month}
+                  onChange={(e) =>
+                    setParams({ ...params, month: e.target.value })
+                  }
+                >
+                  <option value="">Select Month</option>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+                <select
+                  name=""
+                  id=""
+                  value={params.year}
+                  onChange={(e) =>
+                    setParams({ ...params, year: e.target.value })
+                  }
+                >
+                  <option value="">Select Year</option>
+
+                  {years &&
+                    years?.map((item, index) => (
+                      <option key={index} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            ) : (
+              <button
+                className="finance-period"
+                type="button"
+                onClick={() => setDatePopup(true)}
+              >
+                <span style={{ display: "flex", gap: "10px" }}>
+                  {" "}
+                  <span>
+                    {" "}
+                    {params.month
+                      ? new Date(2000, params.month - 1).toLocaleString(
+                          "en-US",
+                          {
+                            month: "long",
+                          },
+                        )
+                      : ""}{" "}
+                  </span>
+                  <span> {params.year}</span>
+                </span>
+                <FiChevronDown />
+              </button>
+            )}
           </div>
         </div>
 
@@ -218,11 +225,21 @@ const AddExpense = () => {
                     <td>{item?.description}</td>
                     <td>{item?.paymentMethod}</td>
                     <td>
-                      <img style={{width: "50px", height:"100px", objectFit:"contain"}} src={item?.recietImage} alt=""/>
+                      {item?.recietImage ? (
+                        <img
+                          style={{
+                            width: "50px",
+                            height: "100px",
+                            objectFit: "contain",
+                          }}
+                          src={item?.recietImage}
+                          alt=""
+                        />
+                      ) : (
+                        <p>No Image</p>
+                      )}
                     </td>
-                    
 
-                 
                     {/* <td>
                               {" "}
                               {client.tattooImage ? (
@@ -243,7 +260,10 @@ const AddExpense = () => {
                       <span style={{ cursor: "pointer", marginRight: "15px" }}>
                         <MdModeEditOutline />
                       </span>
-                      <span style={{ cursor: "pointer" }} onClick={() => deleteExpense(item.id)}>
+                      <span
+                        style={{ cursor: "pointer" }}
+                        onClick={() => deleteExpense(item.id)}
+                      >
                         <MdDelete />
                       </span>
                     </td>
