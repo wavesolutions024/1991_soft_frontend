@@ -6,7 +6,7 @@ import { UserContext } from "../../Context";
 import { api } from "../../Api";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import { MdOutlineKeyboardArrowUp } from "react-icons/md";
-
+import inkflylogo from "../../assets/inkfly_logo.jpg";
 const Sidebar = () => {
   const location = useLocation();
   const { userData } = useContext(UserContext);
@@ -25,20 +25,37 @@ const Sidebar = () => {
     }
   };
 
+
+
   return (
     <div>
       <aside className="sidebar">
         <div class="top">
-          <div className="brand">
-            <span className="brand-icon">
-              <img src={logo} alt="1991 Tattoo Logo" />
-            </span>
-            <div>
-              <p>1991 </p>
-              <small>Tattoo</small>
-            </div>
-          </div>
+          {userData?.franchies === "1991 Tattoo Studio" ? (
+            <div className="brand">
+              <span className="brand-icon">
+                <img src={logo} alt="1991 Tattoo Logo" />
 
+              
+              </span>
+              <div>
+                <p>1991 </p>
+                <small>Tattoo</small>
+              </div>
+            </div>
+          ) : (
+            <div className="brand">
+            
+               
+
+                <img src={inkflylogo} alt="1991 Tattoo Logo" />
+             
+              <div>
+                <p>Inkfly</p>
+                <small>Tattoo</small>
+              </div>
+            </div>
+          )}
           <nav className="nav-links">
             {userData?.role === "Admin" && (
               <Link
@@ -94,13 +111,16 @@ const Sidebar = () => {
                   aria-label={`${enquiryOpen ? "Close" : "Open"} enquiry menu`}
                   aria-expanded={enquiryOpen}
                 >
-                  {enquiryOpen ? <MdOutlineKeyboardArrowUp /> : <RiArrowDropDownLine />}
+                  {enquiryOpen ? (
+                    <MdOutlineKeyboardArrowUp />
+                  ) : (
+                    <RiArrowDropDownLine />
+                  )}
                 </button>
               </div>
               {enquiryOpen && (
                 <div className="nav-dropdown-menu">
                   <Link to="/landing_enquiry">Landing</Link>
-                  
                 </div>
               )}
             </div>
@@ -118,18 +138,20 @@ const Sidebar = () => {
                 Logs
               </Link>
             )}
-             {userData?.role === "Admin" && (
+            {userData?.role === "Admin" && (
               <Link
                 to="/addExpense"
                 className={location.pathname === "/addExpense" ? "active" : ""}
               >
-                Add Expense
+                  Expense
               </Link>
             )}
             {userData?.role === "Admin" && (
               <Link
                 to="/finance-dashboard"
-                className={location.pathname === "/finance-dashboard" ? "active" : ""}
+                className={
+                  location.pathname === "/finance-dashboard" ? "active" : ""
+                }
               >
                 Finance
               </Link>

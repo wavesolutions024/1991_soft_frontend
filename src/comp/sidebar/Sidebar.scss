@@ -32,6 +32,12 @@
   gap: 14px;
   justify-content: flex-start;
 
+
+  img{
+    width: 50px;
+    object-fit: contain;
+  }
+
   .brand-icon {
     background: linear-gradient(135deg, #24b5ff, #5b3ee6);
     border-radius: 10px;

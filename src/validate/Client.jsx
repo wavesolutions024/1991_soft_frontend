@@ -28,6 +28,10 @@ export const validateClient = (value) => {
   if (!value.tattoodetails) {
     error.tattoodetails = "Tattoo Details is required";
   }
+
+    if (!value.clientType) {
+    error.clientType = "Client Type is required";
+  }
   
   if (!value.price) {
     error.price = "Price is required";

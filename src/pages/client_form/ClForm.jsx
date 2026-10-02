@@ -1,4 +1,4 @@
-import ClientForm from "../../comp/client form/ClientForm"
+import ClientForm from "../../comp/client_form/ClientForm"
 import MainPanel from "../../comp/Main_panel/MainPanel"
 
 const ClForm = () => {

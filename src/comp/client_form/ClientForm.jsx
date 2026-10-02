@@ -812,6 +812,7 @@ const ClientForm = () => {
                         name="clientType"
                         value={formData.clientType}
                         onChange={handleInputChange}
+                        
                       >
                         <option value="" style={{ color: "black" }}>
                           Select Type

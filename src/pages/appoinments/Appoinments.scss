@@ -104,12 +104,13 @@
 }
 
 .artist_form {
-  width: calc(100% - 250px);
-  margin-left: 250px;
+  width: 100%;
+  // margin-left: 250px;
   height: 100svh;
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -242,6 +243,16 @@ input::-webkit-inner-spin-button {
           }
         }
       }
+    }
+  }
+}
+
+
+@media only screen and (max-width:730px) {
+  .artist_form{
+    padding: 20px;
+    .artist_form_content{
+      width: 100%;
     }
   }
 }
