@@ -379,6 +379,31 @@ const Enquiry = () => {
                     <small className="field-error">{errors?.gender}</small>
                   )}
                 </div>
+                 <div className="form-group">
+                  <label>Platform</label>
+                  <select
+                    name="gender"
+                    value={values.gender}
+                    onChange={handleInputChange}
+                  >
+                    <option value="" style={{ color: "black" }}>
+                      Select Platform
+                    </option>
+                    <option value="Walk in" style={{ color: "black" }}>
+                      Walk in 
+                    </option>
+                    <option value="Google" style={{ color: "black" }}>
+                      Google
+                    </option>
+                    <option value="Instagram" style={{ color: "black" }}>
+                      Instagram
+                    </option>
+                  </select>
+
+                  {errors?.gender && (
+                    <small className="field-error">{errors?.gender}</small>
+                  )}
+                </div>
                 <div className="form-group">
                   <label>
                    Select Service
@@ -447,7 +472,8 @@ const Enquiry = () => {
                   </select>
                 </div> */}
                 <div className="form-group">
-                  <label>Tattoo Budget</label>
+                  <label>Tattoo Budget  <span className="required">*</span></label>
+                   
                   <input
                     onChange={handleInputChange}
                     value={values.budget}
@@ -455,6 +481,10 @@ const Enquiry = () => {
                     name="budget"
                     placeholder="Enter Tattoo Budget"
                   />
+
+                    {errors?.budget && (
+                    <small className="field-error">{errors?.budget}</small>
+                  )}
                 </div>
 
                 <button className="btn" type="submit">

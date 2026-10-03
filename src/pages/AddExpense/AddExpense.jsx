@@ -435,7 +435,7 @@ const AddExpense = () => {
                     <MdOutlineCameraAlt />
                   </span>
 
-                  <p>Click to Capture Receipt</p>
+                  <p> {reciept ? reciept?.name : "Click to Capture Receipt"}</p>
                 </div>
 
                 {/* Hidden camera input */}

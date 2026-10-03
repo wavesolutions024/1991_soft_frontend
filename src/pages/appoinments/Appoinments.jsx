@@ -203,6 +203,7 @@ const Appoinments = () => {
                   <th>Contact</th>
                   <th>Advance</th>
                   <th>Platform</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -216,6 +217,8 @@ const Appoinments = () => {
                       <td>{item.contactNumber}</td>
                       <td>{item.advanceAmount}</td>
                       <td>{item.visitPlatform}</td>
+                      <td>{item.status}</td>
+
                       <td>
                         <span
                           onClick={() => getAppointmentById(item.id)}

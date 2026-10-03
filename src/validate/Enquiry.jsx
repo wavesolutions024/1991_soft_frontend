@@ -19,6 +19,9 @@ export const validateEnquiry = (value) => {
   if (!value.service) {
     error.service = "Service is required";
   }
+  if(!value.budget){
+    error.budget = "Budget is required";
+  }
 
   return error;
 };
