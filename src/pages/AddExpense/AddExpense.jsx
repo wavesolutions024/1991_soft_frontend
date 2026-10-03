@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import MainPanel from "../../comp/Main_panel/MainPanel";
 import "./AddExpense.scss";
 import { MdOutlineFileUpload } from "react-icons/md";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import "../../comp/client_form/ClientForm.scss";
 import { FiChevronDown } from "react-icons/fi";
 import { UserContext } from "../../Context";
+import { MdOutlineCameraAlt } from "react-icons/md";
 const AddExpense = () => {
   const expType = [
     "Rent",
@@ -28,6 +29,10 @@ const AddExpense = () => {
   const [datePopup, setDatePopup] = useState(false);
   const [expenselist, setExpenseList] = useState();
   const [expensePop, setExpensePop] = useState(false);
+  const fileInputRef = useRef(null);
+  const handleCameraClick = () => {
+    fileInputRef.current?.click();
+  };
   const [payload, setPayload] = useState({
     expenseType: "",
     amount: "",
@@ -396,15 +401,58 @@ const AddExpense = () => {
                 </select>
               </div>
 
-              <div class="reciept">
+              <div className="reciept_section">
+                {/* Upload from gallery / file */}
+                <div
+                  className="reciept"
+                  onClick={() =>
+                    document.getElementById("receipt-upload").click()
+                  }
+                >
+                  <input
+                    id="receipt-upload"
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setReceipt(file);
+                      }
+                    }}
+                  />
+
+                  <span>
+                    <MdOutlineFileUpload />
+                  </span>
+
+                  <p>Upload Receipt Photo</p>
+                </div>
+
+                {/* Camera */}
+                <div className="camera" onClick={handleCameraClick}>
+                  <span>
+                    <MdOutlineCameraAlt />
+                  </span>
+
+                  <p>Click to Capture Receipt</p>
+                </div>
+
+                {/* Hidden camera input */}
                 <input
+                  ref={fileInputRef}
                   type="file"
-                  onChange={(e) => setReceipt(e.target.files[0])}
+                  accept="image/*"
+                  capture="environment"
+                  style={{ display: "none" }}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+
+                    if (file) {
+                      setReceipt(file);
+                    }
+                  }}
                 />
-                <span>
-                  <MdOutlineFileUpload />
-                </span>
-                <p>Upload Recipet photo</p>
               </div>
               <button type="submit" className="btn">
                 Add Expense{" "}
