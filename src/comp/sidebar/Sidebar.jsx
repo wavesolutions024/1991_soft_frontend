@@ -25,7 +25,7 @@ const Sidebar = () => {
     }
   };
 
-console.log(userData,"userData")
+
 
   return (
     <div>
@@ -66,12 +66,12 @@ console.log(userData,"userData")
               </Link>
             )}
 
-            <Link
+         { userData?.role !== "Sales" &&  <Link
               to="/cleints"
               className={location.pathname === "/cleints" ? "active" : ""}
             >
               Client Management
-            </Link>
+            </Link>}
 
             {/* <Link
               to="/appointment-form"
@@ -91,12 +91,12 @@ console.log(userData,"userData")
               </Link>
             )}
 
-            <Link
+        {  userData?.role !== "Sales" &&   <Link
               to="/consent"
               className={location.pathname === "/consent" ? "active" : ""}
             >
               Consent
-            </Link>
+            </Link>}
             <div className="nav-dropdown">
               <div
                 className={`nav-dropdown-toggle ${location.pathname === "/enquiry" ? "active" : ""}`}

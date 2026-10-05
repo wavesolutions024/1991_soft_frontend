@@ -10,6 +10,7 @@ import Loader from "../../comp/Loader/Loader";
 import { validateArtists } from "../../validate/Artists";
 import { toast } from "react-toastify";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { PiSelectionThin } from "react-icons/pi";
 const Artists = () => {
   const [loader, setLoader] = useState(false);
   const [data, setData] = useState();
@@ -18,7 +19,8 @@ const Artists = () => {
     artistNumber: "",
     username: "",
     password: "",
-    salary:""
+    salary: "",
+    role: "",
   };
   const [modal, setModal] = useState(false);
   const [values, setValues] = useState(payload);
@@ -61,7 +63,7 @@ const Artists = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-      const validateErrors = validateArtists(values,id);
+      const validateErrors = validateArtists(values, id);
       setErrors(validateErrors);
 
       if (Object.keys(validateErrors).length > 0) {
@@ -78,12 +80,12 @@ const Artists = () => {
       if (response.status === 200) {
         getAllArtists();
         setModal(false);
-        setValues(payload)
-       id ? toast.success("Artist Updated Successfully") : toast.success("Artist Added Successfully") ;
-       navigate("/artists")
+        setValues(payload);
+        id
+          ? toast.success("Artist Updated Successfully")
+          : toast.success("Artist Added Successfully");
+        navigate("/artists");
       }
-
-      
     } catch (error) {
       console.log(error.response);
       const errorRes = error.response.data;
@@ -95,8 +97,6 @@ const Artists = () => {
       }
     }
   };
-
-
 
   // delete artists
   const deleteArtist = async (id) => {
@@ -127,13 +127,14 @@ const Artists = () => {
       const response = await api.get(`/api/artists/getArtistById?id=${id}`);
 
       const data = response?.data?.data;
-    
+
       setValues((prev) => ({
         ...prev,
         artistName: data.artistName,
         artistNumber: data?.artistNumber,
         username: data?.username,
-        salary:data?.salary
+        salary: data?.salary,
+        role: data?.role,
       }));
 
       navigate(`/artists?id=${id}`);
@@ -159,10 +160,12 @@ const Artists = () => {
     fetchArtits();
   }, [id]);
 
-  const handleClosePop = ()=>{
+  const handleClosePop = () => {
     setModal(false);
-    navigate("/artists")
-  }
+    navigate("/artists");
+  };
+
+  console.log(errors,"erros")
 
   return (
     <>
@@ -313,6 +316,25 @@ const Artists = () => {
                 </div>
                 <div className="form-group">
                   <label>
+                    Role
+                    <span className="required">*</span>
+                  </label>
+                  <select
+                   name="role"
+                   value={values.role}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select Role</option>
+                    <option value="Artist">Artist</option>
+                    <option value="Sales">Sales</option>
+                  </select>
+
+                  {errors.role && (
+                    <small className="field-error">{errors.role}</small>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>
                     Salary
                     <span className="required">*</span>
                   </label>
@@ -328,7 +350,6 @@ const Artists = () => {
                   )}
                 </div>
                 <button className="btn" type="submit">
-                 
                   {id ? "Edit Artist" : "Add Artist"}
                 </button>
               </form>

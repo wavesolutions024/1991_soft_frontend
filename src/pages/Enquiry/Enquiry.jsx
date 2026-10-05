@@ -28,19 +28,20 @@ const Enquiry = () => {
 
   const payload = {
     name: "",
-    email: "",
     mobileNo: "",
-    gender: "",
-    service:"",
-    tattooStyle: "",
-    tattooDescription: "",
+    service: "",
     budget: "",
-    enquiryType:"Walk in"
+    enquiryType: "Walk in",
+    message: "",
+    FOLLOW_UP_1: "",
+    FOLLOW_UP_2_DATE: "",
+    FOLLOW_UP_2: "",
   };
 
   const [values, setValues] = useState(payload);
   const [errors, setErrors] = useState(payload);
-
+  console.log(values, "values");
+  console.log(id, "id");
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -141,16 +142,17 @@ const Enquiry = () => {
 
       if (response?.status === 200) {
         setModal(true);
+
         setValues((prev) => ({
           ...prev,
           name: data?.name,
-          email: data?.email,
           mobileNo: data?.mobileNo,
-          gender: data?.gender,
-          service: data?.service,
-          tattooStyle: data?.tattooStyle,
-          tattooDescription: data?.tattooDescription,
+          service: data?.serviceType,
           budget: data?.budget,
+          message: data.message,
+          FOLLOW_UP_1: data.FOLLOW_UP_1,
+          FOLLOW_UP_2_DATE: data.FOLLOW_UP_2_DATE,
+          FOLLOW_UP_2:data.FOLLOW_UP_2
         }));
       }
     } catch (error) {
@@ -172,6 +174,22 @@ const Enquiry = () => {
       setModal(true);
     }
   }, [addEnquiry, id]);
+
+  const handleStatusChange = async (id, value) => {
+    try {
+      const response = await api.put(
+        `api/enquiry/updateStatus?id=${id}&username=${userData?.username}`,
+        {
+          status: value,
+        },
+      );
+      if (response.status === 200) {
+        await getAllEnquiry();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -199,14 +217,19 @@ const Enquiry = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  {/* <th>Email</th> */}
+
                   <th>Mobile Number</th>
-                  <th>Gender</th>
-                   <th>Service</th>
-                  <th>Tattoo Style</th>
-                  {/* <th>Tattoo Description</th> */}
+
+                  <th>Service</th>
+
                   <th>Platform</th>
                   <th>Budget</th>
+                  <th>Message</th>
+                  <th>Follow Up 1</th>
+                  <th>Follow Up 2 Date</th>
+                  <th>Follow Up 2</th>
+                  {/* <th>Follow Up 3 Date</th>
+                  <th>Follow Up 3</th> */}
                   <th>Status</th>
                   <th>Action</th>
                 </tr>
@@ -216,25 +239,44 @@ const Enquiry = () => {
                   data.map((item) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
-                      {/* <td>{item.email}</td> */}
                       <td>{item.mobileNo}</td>
-                      <td>{item.gender}</td>
                       <td>{item.serviceType}</td>
-                      <td>{item.tattooStyle}</td>
-                      {/* <td>{item.tattooDescription}</td> */}
                       <td>{item.enquiryType ? item.enquiryType : "none"}</td>
                       <td>{item.budget}</td>
-                      <td style={{ textTransform: "capitalize" }}>
-                        {item.status}
-                      </td>
+                      <td>{item.message}</td>
+                      <td>{item.FOLLOW_UP_1}</td>
+                      <td>{item.FOLLOW_UP_2_DATE}</td>
+                      <td>{item.FOLLOW_UP_2}</td>
+                      {/* <td>{item.FOLLOW_UP_3_DATE}</td>
+                      <td>{item.FOLLOW_UP_3}</td> */}
 
+                      <td style={{ textTransform: "capitalize" }}>
+                        {item.status === "completed" ? (
+                          <p>Completed</p>
+                        ) : (
+                          <select
+                            value={item.status}
+                            onChange={(e) =>
+                              handleStatusChange(item.id, e.target.value)
+                            }
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="booked">Booked</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                        )}
+                      </td>
                       <td style={{ width: "200px" }}>
-                   { item?.enquiryType === "Walk in" &&  <span
-                          style={{ cursor: "pointer", marginRight: "10px" }}
-                          onClick={() => editEnquiry(item.id)}
-                        >
-                          <MdModeEditOutline />
-                        </span>}
+                        {item?.enquiryType === "Walk in" && (
+                          <span
+                            style={{ cursor: "pointer", marginRight: "10px" }}
+                            onClick={() => editEnquiry(item.id)}
+                          >
+                            <MdModeEditOutline />
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -329,15 +371,7 @@ const Enquiry = () => {
                     <small className="field-error">{errors?.name}</small>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input
-                    value={values.email}
-                    name="email"
-                    placeholder="Enter Client Email"
-                    onChange={handleInputChange}
-                  />
-                </div>
+
                 <div className="form-group">
                   <label>
                     Mobile Number
@@ -354,32 +388,8 @@ const Enquiry = () => {
                     <small className="field-error">{errors?.mobileNo}</small>
                   )}
                 </div>
-                <div className="form-group">
-                  <label>Gender</label>
-                  <select
-                    name="gender"
-                    value={values.gender}
-                    onChange={handleInputChange}
-                  >
-                    <option value="" style={{ color: "black" }}>
-                      Select Gender
-                    </option>
-                    <option value="Male" style={{ color: "black" }}>
-                      Male
-                    </option>
-                    <option value="Female" style={{ color: "black" }}>
-                      Female
-                    </option>
-                    <option value="Other" style={{ color: "black" }}>
-                      Other
-                    </option>
-                  </select>
 
-                  {errors?.gender && (
-                    <small className="field-error">{errors?.gender}</small>
-                  )}
-                </div>
-                 <div className="form-group">
+                <div className="form-group">
                   <label>Platform</label>
                   <select
                     name="gender"
@@ -390,7 +400,7 @@ const Enquiry = () => {
                       Select Platform
                     </option>
                     <option value="Walk in" style={{ color: "black" }}>
-                      Walk in 
+                      Walk in
                     </option>
                     <option value="Google" style={{ color: "black" }}>
                       Google
@@ -406,11 +416,11 @@ const Enquiry = () => {
                 </div>
                 <div className="form-group">
                   <label>
-                   Select Service
+                    Select Service
                     <span className="required">*</span>
                   </label>
-                 
-                    <select
+
+                  <select
                     name="service"
                     onChange={handleInputChange}
                     value={values.service}
@@ -422,40 +432,16 @@ const Enquiry = () => {
                       Permanent Tattoo
                     </option>
                     <option value="Temporary Tattoo" style={{ color: "black" }}>
-                     Temporary Tattoo
+                      Temporary Tattoo
                     </option>
                     <option value="Peircing" style={{ color: "black" }}>
-                     Peircing
-                    </option> 
+                      Peircing
+                    </option>
                   </select>
 
-                 {errors?.service && (
+                  {errors?.service && (
                     <small className="field-error">{errors?.service}</small>
                   )}
-                </div>
-                <div className="form-group">
-                  <label>
-                    Tattoo Style
-                    {/* <span className="required">*</span> */}
-                  </label>
-                  <input
-                    onChange={handleInputChange}
-                    value={values.tattooStyle}
-                    type="text"
-                    name="tattooStyle"
-                    placeholder="Enter Tattoo Style"
-                  />
-                
-                </div>
-                <div className="form-group">
-                  <label>Tattoo Description</label>
-                  <input
-                    onChange={handleInputChange}
-                    value={values.tattooDescription}
-                    type="text"
-                    name="tattooDescription"
-                    placeholder="Enter Tattoo Description"
-                  />
                 </div>
 
                 {/* <div className="form-group">
@@ -472,8 +458,10 @@ const Enquiry = () => {
                   </select>
                 </div> */}
                 <div className="form-group">
-                  <label>Tattoo Budget  <span className="required">*</span></label>
-                   
+                  <label>
+                    Tattoo Budget <span className="required">*</span>
+                  </label>
+
                   <input
                     onChange={handleInputChange}
                     value={values.budget}
@@ -482,10 +470,64 @@ const Enquiry = () => {
                     placeholder="Enter Tattoo Budget"
                   />
 
-                    {errors?.budget && (
+                  {errors?.budget && (
                     <small className="field-error">{errors?.budget}</small>
                   )}
                 </div>
+                <div className="form-group">
+                  <label>
+                    Message <span className="required">*</span>
+                  </label>
+
+                  <input
+                    onChange={handleInputChange}
+                    value={values.message}
+                    type="text"
+                    name="message"
+                    placeholder="Enter Message"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    Follow Up Message <span className="required">*</span>
+                  </label>
+
+                  <input
+                    onChange={handleInputChange}
+                    value={values.FOLLOW_UP_1}
+                    type="text"
+                    name="FOLLOW_UP_1"
+                    placeholder="Enter Follow Up"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    Follow Up Date <span className="required">*</span>
+                  </label>
+
+                  <input
+                    onChange={handleInputChange}
+                    value={values.FOLLOW_UP_2_DATE}
+                    type="date"
+                    name="FOLLOW_UP_2_DATE"
+                    placeholder="Enter Follow Up Date"
+                  />
+                </div>
+                {id && values.FOLLOW_UP_2_DATE !== null && (
+                  <div className="form-group">
+                    <label>
+                      Follow Up2 Message <span className="required">*</span>
+                    </label>
+
+                    <input
+                      onChange={handleInputChange}
+                      value={values.FOLLOW_UP_2}
+                      type="text"
+                      name="FOLLOW_UP_2"
+                      placeholder="Enter Follow Up 2"
+                    />
+                  </div>
+                )}
 
                 <button className="btn" type="submit">
                   {" "}
