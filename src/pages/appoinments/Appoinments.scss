@@ -50,6 +50,17 @@
         color: var(--text-primary);
         font-size: 14px;
         width: 200px;
+
+           select{
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--border);
+          border-radius: 12px;
+          padding: 10px 12px;
+          color: var(--text-primary);
+          font-size: 14px;
+          transition: var(--transition);
+          font-family: inherit;
+        }
       }
     }
 

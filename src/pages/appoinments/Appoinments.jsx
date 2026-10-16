@@ -27,6 +27,9 @@ const Appoinments = () => {
     total: 0,
     totalPages: 0,
   });
+
+  const [statustoggle, setStatusToggle] = useState();
+
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
@@ -34,6 +37,9 @@ const Appoinments = () => {
   const [searchParams] = useSearchParams();
   const idFromQuery = searchParams.get("id");
   const [loader, setLoader] = useState(false);
+
+
+
   const getAllAppointments = async () => {
     try {
       setLoader(true);
@@ -159,7 +165,7 @@ const Appoinments = () => {
 
       if (response?.status === 200) {
         toast.success("Appoinment delete successfully");
-        getAllAppointments()
+        getAllAppointments();
       }
     } catch (error) {
       console.log(error);
@@ -167,6 +173,20 @@ const Appoinments = () => {
       setLoader(false);
     }
   };
+
+  const handleStatus = async (id,status)=>{
+    try {
+      const response = await api.put(`api/appointments/statusAppoinment?id=${id}&status=${status}`);
+      if(response.status === 200){
+        toast.success("Status Changed");
+       await getAllAppointments();
+       setStatusToggle()
+      }
+     
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <>
@@ -209,7 +229,7 @@ const Appoinments = () => {
               </thead>
               <tbody>
                 {data && data.length > 0 ? (
-                  data.map((item) => (
+                  data.map((item,index) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
                       <td>{item.date ? item.date.split("T")[0] : item.date}</td>
@@ -217,7 +237,23 @@ const Appoinments = () => {
                       <td>{item.contactNumber}</td>
                       <td>{item.advanceAmount}</td>
                       <td>{item.visitPlatform}</td>
-                      <td>{item.status}</td>
+                      <td>
+                        {statustoggle === item.id ? (
+                          <select 
+                          value={item.status}
+                          onChange={(e)=>handleStatus(item.id, e.target.value)}
+                          name="" id="">
+                             <option value="">Select All</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                        ) : (
+                          <p style={{ cursor: "pointer" }}
+                          onClick={()=>setStatusToggle(item.id)}
+                          >{item.status}</p>
+                        )}
+                      </td>
 
                       <td>
                         <span
@@ -392,6 +428,9 @@ const Appoinments = () => {
                   >
                     <option value="" style={{ color: "black" }}>
                       Select Platform
+                    </option>
+                     <option value="Regular" style={{ color: "black" }}>
+                      Regular
                     </option>
                     <option value="Walk in" style={{ color: "black" }}>
                       Walk in

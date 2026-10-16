@@ -6,21 +6,17 @@ import { api } from "../../Api";
 import { truncateAmt } from "../../comp/truncateAmount/truncateAmount";
 import { UserContext } from "../../Context";
 import { Link } from "react-router-dom";
-
-
-
-
-
+import { Flex, Progress } from "antd";
 
 const FinDashboard = () => {
   const [countStats, setCountStats] = useState();
   const { setLoader } = useContext(UserContext);
-const [monthlyStats , setmonthlyStats] = useState([]);
+  const [monthlyStats, setmonthlyStats] = useState([]);
   const [datePopup, setDatePopup] = useState(false);
-  const [artistData,setArtistData] = useState();
-  const [paymentbreak,setPaymentBreak] = useState();
-  const [recentData,setRecentData] = useState()
-
+  const [artistData, setArtistData] = useState();
+  const [paymentbreak, setPaymentBreak] = useState();
+  const [recentData, setRecentData] = useState();
+  const [clientTypedata, setClientTypeData] = useState();
 
   const [payload, setPayload] = useState({
     date: new Date(),
@@ -35,8 +31,6 @@ const [monthlyStats , setmonthlyStats] = useState([]);
     (_, index) => 2000 + index,
   );
 
-  
-
   const getStats = async () => {
     try {
       const response = await api.get(
@@ -46,6 +40,8 @@ const [monthlyStats , setmonthlyStats] = useState([]);
       const data = response?.data || [];
 
       console.log(data, "data");
+
+      setClientTypeData(data?.clientype);
 
       setCountStats([
         {
@@ -65,13 +61,13 @@ const [monthlyStats , setmonthlyStats] = useState([]);
         },
       ]);
 
-      setRecentData(data?.recentClients || [])
+      setRecentData(data?.recentClients || []);
 
-      setPaymentBreak(data?.paymentMethods || [])
+      setPaymentBreak(data?.paymentMethods || []);
 
-      setArtistData(data?.revenueByArtist || [])
+      setArtistData(data?.revenueByArtist || []);
 
-      setmonthlyStats(data?.monthlyStats || [])
+      setmonthlyStats(data?.monthlyStats || []);
     } catch (error) {
       console.log(error);
     }
@@ -84,8 +80,6 @@ const [monthlyStats , setmonthlyStats] = useState([]);
 
     fetchStats();
   }, [payload.month, payload.year]);
-
-
 
   return (
     <MainPanel>
@@ -138,14 +132,20 @@ const [monthlyStats , setmonthlyStats] = useState([]);
               type="button"
               onClick={() => setDatePopup(true)}
             >
-              <span style={{display:"flex", gap:"10px"}}>
+              <span style={{ display: "flex", gap: "10px" }}>
                 {" "}
-               <span> {payload.month
-                  ? new Date(2000, payload.month - 1).toLocaleString("en-US", {
-                      month: "long",
-                    })
-                  : ""} </span>
-               <span> {payload.year}</span>
+                <span>
+                  {" "}
+                  {payload.month
+                    ? new Date(2000, payload.month - 1).toLocaleString(
+                        "en-US",
+                        {
+                          month: "long",
+                        },
+                      )
+                    : ""}{" "}
+                </span>
+                <span> {payload.year}</span>
               </span>
               <FiChevronDown />
             </button>
@@ -163,75 +163,85 @@ const [monthlyStats , setmonthlyStats] = useState([]);
                 <h2>{truncateAmt(item.value)}</h2>
               </article>
             ))}
+
+          <article className={`finance-stat trans `}>
+            {clientTypedata &&
+              clientTypedata?.map((item, index) => (
+                <div class="statbar" key={index}>
+                  <p>{item.clientType}</p>
+                  <Progress percent={item.count} />
+                </div>
+              ))}
+          </article>
         </section>
 
-    <section className="card-panel finance-chart-panel">
-  <div className="panel-header">
-    <div className="panel-title-wrap">
-      <h3>Revenue vs Expense</h3>
-    </div>
-
-    <div className="chart-legend">
-      <span className="legend-pill revenue">Revenue</span>
-      <span className="legend-pill expense">Expense</span>
-    </div>
-  </div>
-
-  <div className="chart-surface">
-    <div className="chart-grid-lines" aria-hidden="true">
-      <span />
-      <span />
-      <span />
-      <span />
-      <span />
-    </div>
-
-    <div
-      className="chart-bars"
-      aria-label="Revenue vs expense bar chart"
-    >
-      {monthlyStats?.map((item, index) => {
-        const revenue = Number(item.revenue) || 0;
-        const expense = Number(item.expense) || 0;
-
-        // Find highest value so bars are scaled relative to the data
-        const maxValue = Math.max(
-          ...monthlyStats.map((x) =>
-            Math.max(Number(x.revenue) || 0, Number(x.expense) || 0)
-          ),
-          1
-        );
-
-        const revenueHeight = (revenue / maxValue) * 100;
-        const expenseHeight = (expense / maxValue) * 100;
-
-        return (
-          <div key={item.month} className="bar-pair">
-            <div className="bar-group">
-              <span
-                className="bar revenue-bar"
-                style={{
-                  height: `${revenueHeight}%`,
-                }}
-                title={`Revenue: ₹${revenue.toLocaleString("en-IN")}`}
-              />
-
-              <span
-                className="bar expense-bar"
-                style={{
-                  height: `${expenseHeight}%`,
-                }}
-                title={`Expense: ₹${expense.toLocaleString("en-IN")}`}
-              />
+        <section className="card-panel finance-chart-panel">
+          <div className="panel-header">
+            <div className="panel-title-wrap">
+              <h3>Revenue vs Expense</h3>
             </div>
 
-            <small>{item.monthName}</small>
+            <div className="chart-legend">
+              <span className="legend-pill revenue">Revenue</span>
+              <span className="legend-pill expense">Expense</span>
+            </div>
           </div>
-        );
-      })}
-    </div>
-  </div>
-</section>
+
+          <div className="chart-surface">
+            <div className="chart-grid-lines" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+              <span />
+              <span />
+            </div>
+
+            <div
+              className="chart-bars"
+              aria-label="Revenue vs expense bar chart"
+            >
+              {monthlyStats?.map((item, index) => {
+                const revenue = Number(item.revenue) || 0;
+                const expense = Number(item.expense) || 0;
+
+                // Find highest value so bars are scaled relative to the data
+                const maxValue = Math.max(
+                  ...monthlyStats.map((x) =>
+                    Math.max(Number(x.revenue) || 0, Number(x.expense) || 0),
+                  ),
+                  1,
+                );
+
+                const revenueHeight = (revenue / maxValue) * 100;
+                const expenseHeight = (expense / maxValue) * 100;
+
+                return (
+                  <div key={item.month} className="bar-pair">
+                    <div className="bar-group">
+                      <span
+                        className="bar revenue-bar"
+                        style={{
+                          height: `${revenueHeight}%`,
+                        }}
+                        title={`Revenue: ₹${revenue.toLocaleString("en-IN")}`}
+                      />
+
+                      <span
+                        className="bar expense-bar"
+                        style={{
+                          height: `${expenseHeight}%`,
+                        }}
+                        title={`Expense: ₹${expense.toLocaleString("en-IN")}`}
+                      />
+                    </div>
+
+                    <small>{item.monthName}</small>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
         <section className="finance-breakdown-grid">
           <article className="card-panel breakdown-card">
@@ -240,15 +250,16 @@ const [monthlyStats , setmonthlyStats] = useState([]);
             </div>
 
             <div className="list-stack">
-              {artistData && artistData.map((artist, index) => (
-                <div key={artist.artist} className="list-row">
-                  <div className="artist-meta">
-                    <span className={`artist-dot dot-${index + 1}`} />
-                    <span>{artist.artist}</span>
+              {artistData &&
+                artistData.map((artist, index) => (
+                  <div key={artist.artist} className="list-row">
+                    <div className="artist-meta">
+                      <span className={`artist-dot dot-${index + 1}`} />
+                      <span>{artist.artist}</span>
+                    </div>
+                    <strong>{truncateAmt(artist.revenue)}</strong>
                   </div>
-                  <strong>{truncateAmt(artist.revenue)}</strong>
-                </div>
-              ))}
+                ))}
             </div>
           </article>
 
@@ -258,24 +269,26 @@ const [monthlyStats , setmonthlyStats] = useState([]);
             </div>
 
             <div className="payment-stack">
-              {paymentbreak && paymentbreak.map((item,index) => (
-                <div key={item.paymentType} className="payment-row">
-                  <div className="payment-label-wrap">
-                    <span className="payment-label">{item.paymentType}</span>
-                    <strong> {`(${truncateAmt(item.amount)})`} - {item.percentage}%</strong>
+              {paymentbreak &&
+                paymentbreak.map((item, index) => (
+                  <div key={item.paymentType} className="payment-row">
+                    <div className="payment-label-wrap">
+                      <span className="payment-label">{item.paymentType}</span>
+                      <strong>
+                        {" "}
+                        {`(${truncateAmt(item.amount)})`} - {item.percentage}%
+                      </strong>
+                    </div>
+                    <div className="progress-track">
+                      <span
+                        style={{
+                          width: `${item.percentage}%`,
+                        }}
+                        className={`bar-${index + 1}`}
+                      />
+                    </div>
                   </div>
-                  <div className="progress-track">
-                    <span
-                      style={{
-                        width: `${item.percentage}%`,
-                        
-                      }}
-
-                      className={`bar-${index + 1}`}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </article>
         </section>
@@ -301,22 +314,23 @@ const [monthlyStats , setmonthlyStats] = useState([]);
                 </tr>
               </thead>
               <tbody>
-                {recentData && recentData?.map((row) => (
-                  <tr key={`${row.client}`}>
-                    <td>{row?.created_at?.split(" ")[0]}</td>
-                    <td>{row.name}</td>
-                    <td>{row.clientType}</td>
-                    <td>{row.price}</td>
-                    <td>{row.paymentType}</td>
-                    <td>
-                      <span
-                        className={`status-badge ${row.status.toLowerCase()}`}
-                      >
-                        {row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {recentData &&
+                  recentData?.map((row) => (
+                    <tr key={`${row.client}`}>
+                      <td>{row?.created_at?.split(" ")[0]}</td>
+                      <td>{row.name}</td>
+                      <td>{row.clientType}</td>
+                      <td>{row.price}</td>
+                      <td>{row.paymentType}</td>
+                      <td>
+                        <span
+                          className={`status-badge ${row.status.toLowerCase()}`}
+                        >
+                          {row.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </div>
