@@ -81,75 +81,111 @@ const FinDashboard = () => {
     fetchStats();
   }, [payload.month, payload.year]);
 
+
+const exportdata = async () => {
+  try {
+    const response = await api.get(
+      `api/finDash/expordata?month=${payload.month}&year=${payload.year}`,
+      {
+        responseType: "blob",
+      }
+    );
+
+    const blob = new Blob([response.data], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `clients_${payload.year}_${payload.month}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("CSV export failed:", error);
+  }
+};
+
   return (
     <MainPanel>
       <div className="finance-dashboard">
         <header className="finance-header">
           <h1>Finance Dashboard</h1>
-          {datePopup ? (
-            <div class="select_input">
-              <select
-                name=""
-                id=""
-                value={payload.month}
-                onChange={(e) =>
-                  setPayload({ ...payload, month: e.target.value })
-                }
-              >
-                <option value="">Select Month</option>
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
-              </select>
-              <select
-                name=""
-                id=""
-                value={payload.year}
-                onChange={(e) =>
-                  setPayload({ ...payload, year: e.target.value })
-                }
-              >
-                <option value="">Select Year</option>
 
-                {years &&
-                  years?.map((item, index) => (
-                    <option value={item}>{item}</option>
-                  ))}
-              </select>
-            </div>
-          ) : (
-            <button
-              className="finance-period"
-              type="button"
-              onClick={() => setDatePopup(true)}
-            >
-              <span style={{ display: "flex", gap: "10px" }}>
-                {" "}
-                <span>
+          <div class="right">
+            {datePopup ? (
+              <div class="select_input">
+                <select
+                  name=""
+                  id=""
+                  value={payload.month}
+                  onChange={(e) =>
+                    setPayload({ ...payload, month: e.target.value })
+                  }
+                >
+                  <option value="">Select Month</option>
+                  <option value="1">January</option>
+                  <option value="2">February</option>
+                  <option value="3">March</option>
+                  <option value="4">April</option>
+                  <option value="5">May</option>
+                  <option value="6">June</option>
+                  <option value="7">July</option>
+                  <option value="8">August</option>
+                  <option value="9">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
+                </select>
+                <select
+                  name=""
+                  id=""
+                  value={payload.year}
+                  onChange={(e) =>
+                    setPayload({ ...payload, year: e.target.value })
+                  }
+                >
+                  <option value="">Select Year</option>
+
+                  {years &&
+                    years?.map((item, index) => (
+                      <option value={item}>{item}</option>
+                    ))}
+                </select>
+              </div>
+            ) : (
+              <button
+                className="finance-period"
+                type="button"
+                onClick={() => setDatePopup(true)}
+              >
+                <span style={{ display: "flex", gap: "10px" }}>
                   {" "}
-                  {payload.month
-                    ? new Date(2000, payload.month - 1).toLocaleString(
-                        "en-US",
-                        {
-                          month: "long",
-                        },
-                      )
-                    : ""}{" "}
+                  <span>
+                    {" "}
+                    {payload.month
+                      ? new Date(2000, payload.month - 1).toLocaleString(
+                          "en-US",
+                          {
+                            month: "long",
+                          },
+                        )
+                      : ""}{" "}
+                  </span>
+                  <span> {payload.year}</span>
                 </span>
-                <span> {payload.year}</span>
-              </span>
-              <FiChevronDown />
-            </button>
-          )}
+                <FiChevronDown />
+              </button>
+            )}
+
+            <button className="btn" onClick={exportdata} >Export Data</button>
+          </div>
         </header>
 
         <section className="finance-stats">

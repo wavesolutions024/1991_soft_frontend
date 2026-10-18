@@ -27,6 +27,14 @@
   gap: 16px;
   padding: 4px 4px 0;
 
+  .right{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--unit);
+  }
+
+
   h1 {
     font-size: clamp(1.9rem, 2vw, 2.5rem);
     font-weight: 700;
