@@ -10,6 +10,7 @@ import "../../comp/client_form/ClientForm.scss";
 import { FiChevronDown } from "react-icons/fi";
 import { UserContext } from "../../Context";
 import { MdOutlineCameraAlt } from "react-icons/md";
+import Table_Comp from "../../comp/table/Table_Comp";
 const AddExpense = () => {
   const expType = [
     "Rent",
@@ -26,6 +27,13 @@ const AddExpense = () => {
     "Travel",
     "Other",
   ];
+
+    const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: "",
+    totalPages: "",
+  });
   const [datePopup, setDatePopup] = useState(false);
   const [expenselist, setExpenseList] = useState();
   const [expensePop, setExpensePop] = useState(false);
@@ -56,10 +64,28 @@ const AddExpense = () => {
   const getExpenses = async () => {
     try {
       const response = await api.get(
-        `api/expense/getAllExpense?month=${params.month}&year=${params.year}`,
+        `api/expense/getAllExpense?month=${params.month}&year=${params.year}&page=${pagination.current}&limit=${pagination.pageSize}`,
       );
-      setExpenseList(response?.data?.data);
-      console.log(response);
+
+
+
+      const data = response?.data?.data?.map((item, index) => ({
+        id: item.id,
+        date: item?.created_at?.split(" ")[0],
+        expenseType: item?.expenseType,
+        amount: item?.amount,
+        description: item?.description,
+        paymentMethod: item?.paymentMethod,
+        recietImage: item?.recietImage,
+      }));
+
+      setPagination((prev)=>({
+        ...prev,
+        total:response?.data?.pagination?.total
+      }))
+
+      setExpenseList(data);
+     
     } catch (error) {
       console.log(error);
     }
@@ -71,7 +97,7 @@ const AddExpense = () => {
     };
 
     fetchExpense();
-  }, [params]);
+  }, [params,pagination.current,pagination.pageSize]);
 
   const handleSubmit = async (e) => {
     try {
@@ -113,6 +139,81 @@ const AddExpense = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const columns = [
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      width: "10%",
+    },
+    {
+      title: "Expense Type",
+      dataIndex: "expenseType",
+      key: "expenseType",
+      width: "15%",
+    },
+    {
+      title: "Amount",
+      dataIndex: "amount",
+      key: "amount",
+      width: "15%",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      width: "20%",
+    },
+    {
+      title: "Payment Method",
+      dataIndex: "paymentMethod",
+      key: "paymentMethod",
+    },
+    {
+      title: "Receipt Image",
+      dataIndex: "recipetimage",
+      key: "recipetimage",
+      render: (_, item) => (
+        <>
+          {item?.recietImage !== null ? (
+            <img src={item?.recietImage} alt="" />
+          ) : (
+            <p>No Image</p>
+          )}
+        </>
+      ),
+    },
+
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+
+      render: (_, item) => (
+        <div>
+          <span style={{ cursor: "pointer", marginRight: "15px" }}>
+            <MdModeEditOutline />
+          </span>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => deleteExpense(item.id)}
+          >
+            <MdDelete />
+          </span>
+        </div>
+      ),
+    },
+  ];
+
+
+  const handleChange = (paginationConfig) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: paginationConfig.current,
+      pageSize: paginationConfig.pageSize,
+    }));
   };
 
   return (
@@ -204,7 +305,14 @@ const AddExpense = () => {
           </div>
         </div>
 
-        <div className="client-table-wrapper">
+        <div class="client-table-wrapper">
+          <Table_Comp data={expenselist} columns={columns}
+          
+          pagination={pagination}
+          handlechange={handleChange}/>
+        </div>
+
+        {/* <div className="client-table-wrapper">
           <table className="client-table">
             <thead>
               <tr>
@@ -226,7 +334,7 @@ const AddExpense = () => {
                     <td>{item?.created_at?.split(" ")[0]}</td>
                     <td style={{ position: "relative" }}>{item.expenseType}</td>
                     <td>{item?.amount}</td>
-                    {/* <td>{client.email}</td> */}
+                   
                     <td>{item?.description}</td>
                     <td>{item?.paymentMethod}</td>
                     <td>
@@ -245,22 +353,7 @@ const AddExpense = () => {
                       )}
                     </td>
 
-                    {/* <td>
-                              {" "}
-                              {client.tattooImage ? (
-                                <img
-                                  style={{
-                                    width: "100px",
-                                    height: "100px",
-                                    objectFit: "cover",
-                                  }}
-                                  src={client.tattooImage}
-                                  alt=""
-                                />
-                              ) : (
-                                <p>No Image </p>
-                              )}{" "}
-                            </td> */}
+            
                     <td style={{}}>
                       <span style={{ cursor: "pointer", marginRight: "15px" }}>
                         <MdModeEditOutline />
@@ -288,49 +381,17 @@ const AddExpense = () => {
               <div className="pagination-controls">
                 <button
                   className="pagination-btn"
-                  // onClick={() =>
-                  //   setPagination((prev) => ({
-                  //     ...prev,
-                  //     page: Math.max(prev.page - 1, 1),
-                  //   }))
-                  // }
-                  // disabled={pagination.page === 1}
+                 
                   type="button"
                 >
                   Previous
                 </button>
 
-                {/* {Array.from(
-                          { length: pagination.totalPages },
-                          (_, index) => index + 1,
-                        ).map((page) => (
-                          <button
-                            key={page}
-                            className={`pagination-btn ${page === pagination.page ? "active" : ""}`}
-                            onClick={() => setPagination((prev) => ({ ...prev, page }))}
-                            type="button"
-                          >
-                            {page}
-                          </button>
-                        ))} */}
-
-                {/* <button
-                          className="pagination-btn"
-                          onClick={() =>
-                            setPagination((prev) => ({
-                              ...prev,
-                              page: Math.min(prev.page + 1, pagination.total),
-                            }))
-                          }
-                          disabled={pagination.page === pagination.totalPages}
-                          type="button"
-                        >
-                          Next
-                        </button> */}
+               
               </div>
             </div>
           )}
-        </div>
+        </div> */}
 
         {expensePop && (
           <div class="add_exp">

@@ -125,10 +125,16 @@ const Sidebar = () => {
               )}
             </div>
             <Link
-              to="/appoinments  "
+              to="/appoinments"
               className={location.pathname === "/appoinments" ? "active" : ""}
             >
               Appoinments
+            </Link>
+              <Link
+              to="/whatsapp-logs"
+              className={location.pathname === "/whatsapp-logs" ? "active" : ""}
+            >
+              Whatsapp Logs
             </Link>
             {userData?.role === "Admin" && (
               <Link

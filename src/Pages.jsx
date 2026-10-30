@@ -12,6 +12,7 @@ const appoinments = lazy(()=>import("./pages/appoinments/Appoinments"));
 const finDashboard = lazy(()=>import("./pages/FinDashboard/FinDashboard"));
 const addExpense = lazy(()=>import("./pages/AddExpense/AddExpense"));
 const landing = lazy(()=>import("./comp/landing/Landing"));
+const whatsapplogs = lazy(()=>import("./pages/WhatsappLogs/WhatsappLogs"));
 
 
 export const routes = [
@@ -75,6 +76,11 @@ export const routes = [
    {
     path: "/addExpense",
     element: addExpense,
+    exact: true,
+  },
+     {
+    path: "/whatsapp-logs",
+    element: whatsapplogs,
     exact: true,
   },
 ];

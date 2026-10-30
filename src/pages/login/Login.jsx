@@ -6,7 +6,7 @@ import { IoMdEye } from "react-icons/io";
 import { IoIosEyeOff } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 const Login = () => {
-  const [password, setPassword] = useState(false);
+  const [password, setPassword] = useState(true);
   const [error, setError] = useState({
     username: "",
     password: "",

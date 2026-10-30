@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { UserContext } from "../../Context";
 import vipTag from "../../assets/VIP.png";
 import semivipTag from "../../assets/SEMIvIP.png";
+import Table_Comp from "../table/Table_Comp";
 
 const initialFormData = {
   username: "",
@@ -47,8 +48,8 @@ const ClientForm = () => {
   const { userData } = useContext(UserContext);
   const clientid = searchparams.get("id");
   const [pagination, setPagination] = useState({
-    page: 1,
-    size: 10,
+    current: 1,
+    pageSize: 10,
     total: "",
     totalPages: "",
   });
@@ -138,7 +139,7 @@ const ClientForm = () => {
       }
 
       const response = await api.get(
-        `api/client/getAllClients?page=${pagination.page}&size=${pagination.size}${queryParam}${vipParam}`,
+        `api/client/getAllClients?page=${pagination.current}&size=${pagination.pageSize}${queryParam}${vipParam}`,
       );
       const dropResponse = await api.get(`api/client/getAllClientsDropdown`);
 
@@ -146,7 +147,25 @@ const ClientForm = () => {
         if (response?.data?.data?.length === 0) {
           setClients();
         }
-        setClients(response?.data?.data || []);
+
+      
+
+        const data = response?.data?.data?.map((item,index)=>({
+          id:item.id,
+          date:item?.backDateEntry?.split(" ")[0],
+          name:item.name,
+          number: userData?.role === "Admin" ? item.mobileno : `${item?.mobileno.slice(0, 5)}*****`,
+          clientType : item?.clientType,
+          referallName:item?.referallName,
+          tattoodetails:item?.tattoodetails,
+          tattooArtist:item?.tattooArtist,
+          paymentType:item?.paymentType,
+          inch:item?.inch,
+          price:item?.price,
+          messageStatus :item?.messageStatus
+        }))
+
+        setClients(data|| []);
 
         setPagination((prev) => ({
           ...prev,
@@ -168,6 +187,7 @@ const ClientForm = () => {
   const getAllArtists = async () => {
     try {
       const response = await api.get(`api/artists/getAllArtists`);
+
 
       setArtists(response?.data?.data);
     } catch (error) {
@@ -329,13 +349,13 @@ const ClientForm = () => {
 
   useEffect(() => {
     const fetchConsent = async () => {
-      if (pagination.page || pagination.size || search || vipFilter) {
+      if (pagination.current || pagination.pageSize || search || vipFilter) {
         await getAllClient();
       }
     };
 
     fetchConsent();
-  }, [pagination.page, pagination.size, search, vipFilter]);
+  }, [pagination.current, pagination.pageSize, search, vipFilter]);
 
   useEffect(() => {
     const getClient = async () => {
@@ -428,6 +448,106 @@ const ClientForm = () => {
     }
   };
 
+  const columns = [
+    {
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
+      width: "10%",
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      width: "15%",
+    },
+    {
+      title: "Phone",
+      dataIndex: "number",
+      key: "number",
+      width: "10%",
+    },
+    {
+      title: "Client Type",
+      dataIndex: "clientType",
+      key: "clientType",
+     
+    },
+    {
+      title: "Referral Person",
+      dataIndex: "referallName",
+      key: "referallName",
+     
+    },
+    {
+      title: "Tattoo Details",
+      dataIndex: "tattoodetails",
+      key: "tattoodetails",
+      
+    },
+    {
+      title: "Tattoo Artist",
+      dataIndex: "tattooArtist",
+      key: "tattooArtist",
+      
+    },
+    {
+      title: "Payment Method",
+      dataIndex: "paymentType",
+      key: "paymentType",
+      
+    },
+    {
+      title: "Tattoo Inch",
+      dataIndex: "inch",
+      key: "inch",
+      
+    },
+    {
+      title: "Tattoo Price",
+      dataIndex: "price",
+      key: "price",
+      
+    },
+    {
+       title: "Message Status",
+      dataIndex: "messageStatus",
+      key: "messageStatus",
+      
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      
+      render: (_, client) => (
+        <div>
+          <span
+            style={{ cursor: "pointer", marginRight: "15px" }}
+            onClick={() => editClient(client.id)}
+          >
+            <MdModeEditOutline />
+          </span>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => deleteClient(client.id)}
+          >
+            <MdDelete />
+          </span>
+        </div>
+      ),
+    },
+  ];
+
+
+  const handleChange = (paginationConfig) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: paginationConfig.current,
+      pageSize: paginationConfig.pageSize,
+    }));
+  };
+
   return (
     <>
       {loader && <Loader />}
@@ -465,7 +585,7 @@ const ClientForm = () => {
         )}
         <div class="fil_section">
           <div class="search_input">
-            <label for="">Search Client</label>
+            <label >Search Client</label>
             <input
               type="search"
               placeholder="Enter Client Name / Number"
@@ -475,7 +595,7 @@ const ClientForm = () => {
           </div>
 
           <div class="drp">
-            <label for="">VIP/SemiVIP</label>
+            <label >VIP/SemiVIP</label>
             <select
               name="gender"
               value={vipFilter}
@@ -493,7 +613,7 @@ const ClientForm = () => {
             </select>
           </div>
         </div>
-        <div className="client-table-wrapper">
+        {/* <div className="client-table-wrapper">
           <table className="client-table">
             <thead>
               <tr>
@@ -505,7 +625,7 @@ const ClientForm = () => {
                 <th>Referral Person</th>
                 <th>Tattoo Details</th>
                 <th>Tattoo Artist</th>
-                {/* <th>DOB</th> */}
+              
                 <th>Payment Method</th>
                 <th>Gender</th>
                 <th>Tattoo Inch</th>
@@ -542,32 +662,17 @@ const ClientForm = () => {
                         ? client?.mobileno
                         : `${client?.mobileno.slice(0, 5)}*****`}
                     </td>
-                    {/* <td>{client.email}</td> */}
+                   
                     <td>{client.clientType}</td>
                     <td>{client.referallName}</td>
                     <td width="250px">{client.tattoodetails}</td>
                     <td>{client.tattooArtist}</td>
-                    {/* <td>{client.dob}</td> */}
+                   
                     <td>{client.paymentType}</td>
                     <td>{client.gender}</td>
                     <td>{client.inch}</td>
                     <td>{client.price}</td>
-                    {/* <td>
-                      {" "}
-                      {client.tattooImage ? (
-                        <img
-                          style={{
-                            width: "100px",
-                            height: "100px",
-                            objectFit: "cover",
-                          }}
-                          src={client.tattooImage}
-                          alt=""
-                        />
-                      ) : (
-                        <p>No Image </p>
-                      )}{" "}
-                    </td> */}
+                  
                     <td style={{}}>
                       <span
                         style={{ cursor: "pointer", marginRight: "15px" }}
@@ -640,6 +745,13 @@ const ClientForm = () => {
               </div>
             </div>
           )}
+        </div> */}
+
+        <div class="client-table-wrapper">
+          <Table_Comp columns={columns} data={clients}
+          pagination={pagination}
+          handlechange={handleChange}
+          />
         </div>
 
         {(showModal || clientid) && (
@@ -812,7 +924,6 @@ const ClientForm = () => {
                         name="clientType"
                         value={formData.clientType}
                         onChange={handleInputChange}
-                        
                       >
                         <option value="" style={{ color: "black" }}>
                           Select Type
