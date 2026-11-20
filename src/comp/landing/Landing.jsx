@@ -3,10 +3,12 @@ import "./Landing.scss";
 import Loader from "../../comp/Loader/Loader";
 import MainPanel from "../Main_panel/MainPanel";
 import { api } from "../../Api";
+import { toast } from "react-toastify";
 // import { MdModeEditOutline } from "react-icons/md";
 const Landing = () => {
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [statustoggle, setStatusToggle] = useState();
   const [pagination, setPagination] = useState({
     page: 1,
     size: 10,
@@ -45,6 +47,22 @@ const Landing = () => {
     fetchEnquiry();
   }, [pagination.page || pagination.size]);
 
+
+    const handleStatus = async (id, status) => {
+      try {
+        const response = await api.patch(
+          `api/enquiry/updateStatus?id=${id}&status=${status}`,
+        );
+        if (response.status === 200) {
+          toast.success("Status Changed");
+          await getAllEnquiry();
+          setStatusToggle();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
   return (
     <>
       {loader && <Loader />}
@@ -61,14 +79,14 @@ const Landing = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Email</th>
+                  {/* <th>Email</th>/ */}
                   <th>Mobile Number</th>
-                  <th>Gender</th>
+                  {/* <th>Gender</th> */}
                   <th>Service</th>
-                  <th>Tattoo Style</th>
-                  <th>Tattoo Description</th>
-                  <th>Platform</th>
-                  <th>Budget</th>
+                  {/* <th>Tattoo Style</th> */}
+                  {/* <th>Tattoo Description</th> */}
+                  {/* <th>Platform</th> */}
+                  {/* <th>Budget</th> */}
                   <th>Status</th>
                   {/* <th>Action</th> */}
                 </tr>
@@ -78,16 +96,37 @@ const Landing = () => {
                   data.map((item) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
-                      <td>{item.email}</td>
+                      {/* <td>{item.email}</td> */}
                       <td>{item.mobileNo}</td>
-                      <td>{item.gender}</td>
+                      {/* <td>{item.gender}</td> */}
                       <td>{item.serviceType}</td>
-                      <td>{item.tattooStyle}</td>
-                      <td>{item.tattooDescription}</td>
-                      <td>{item.enquiryType ? item.enquiryType : "none"}</td>
-                      <td>{item.budget}</td>
+                      {/* <td>{item.tattooStyle}</td> */}
+                      {/* <td>{item.tattooDescription}</td> */}
+                      {/* <td>{item.enquiryType ? item.enquiryType : "none"}</td> */}
+                      {/* <td>{item.budget}</td> */}
                       <td style={{ textTransform: "capitalize" }}>
-                        {item.status}
+                        {statustoggle === item?.id ? (
+                          <select
+                            value={item.status}
+                            onChange={(e) =>
+                              handleStatus(item.id, e.target.value)
+                            }
+                            name=""
+                            id=""
+                          >
+
+                            <option value="">Select All</option>
+                            <option value="pending">Pending</option>
+                            <option value="contacted">Contacted</option>
+                               <option value="booked">Booked</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                          </select>
+                        ) : (
+                          <p onClick={() => setStatusToggle(item.id)}>
+                            {item.status}
+                          </p>
+                        )}
                       </td>
                       {/* <td style={{ width: "200px" }}>
                         <span

@@ -12,6 +12,7 @@ const initialPayload = {
   name: "",
   date: "",
   time: "",
+  service: "",
   contactNumber: "",
   advanceAmount: 0,
   visitPlatform: "",
@@ -37,8 +38,6 @@ const Appoinments = () => {
   const [searchParams] = useSearchParams();
   const idFromQuery = searchParams.get("id");
   const [loader, setLoader] = useState(false);
-
-
 
   const getAllAppointments = async () => {
     try {
@@ -75,6 +74,7 @@ const Appoinments = () => {
             date: d.date ? d.date.split("T")[0] : "",
             time: d.time || "",
             contactNumber: d.contactNumber || "",
+            service: d.service || "",
             advanceAmount: d.advanceAmount || 0,
             visitPlatform: d.visitPlatform || "",
           });
@@ -174,19 +174,20 @@ const Appoinments = () => {
     }
   };
 
-  const handleStatus = async (id,status)=>{
+  const handleStatus = async (id, status) => {
     try {
-      const response = await api.put(`api/appointments/statusAppoinment?id=${id}&status=${status}`);
-      if(response.status === 200){
+      const response = await api.put(
+        `api/appointments/statusAppoinment?id=${id}&status=${status}`,
+      );
+      if (response.status === 200) {
         toast.success("Status Changed");
-       await getAllAppointments();
-       setStatusToggle()
+        await getAllAppointments();
+        setStatusToggle();
       }
-     
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   return (
     <>
@@ -221,6 +222,7 @@ const Appoinments = () => {
                   <th>Date</th>
                   <th>Time</th>
                   <th>Contact</th>
+                  <th>Service</th>
                   <th>Advance</th>
                   <th>Platform</th>
                   <th>Status</th>
@@ -229,29 +231,37 @@ const Appoinments = () => {
               </thead>
               <tbody>
                 {data && data.length > 0 ? (
-                  data.map((item,index) => (
+                  data.map((item, index) => (
                     <tr key={item.id}>
                       <td>{item.name}</td>
                       <td>{item.date ? item.date.split("T")[0] : item.date}</td>
                       <td>{item.time}</td>
                       <td>{item.contactNumber}</td>
+                      <td>{item.service}</td>
                       <td>{item.advanceAmount}</td>
                       <td>{item.visitPlatform}</td>
                       <td>
                         {statustoggle === item.id ? (
-                          <select 
-                          value={item.status}
-                          onChange={(e)=>handleStatus(item.id, e.target.value)}
-                          name="" id="">
-                             <option value="">Select All</option>
+                          <select
+                            value={item.status}
+                            onChange={(e) =>
+                              handleStatus(item.id, e.target.value)
+                            }
+                            name=""
+                            id=""
+                          >
+                            <option value="">Select All</option>
                             <option value="pending">Pending</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                           </select>
                         ) : (
-                          <p style={{ cursor: "pointer" }}
-                          onClick={()=>setStatusToggle(item.id)}
-                          >{item.status}</p>
+                          <p
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setStatusToggle(item.id)}
+                          >
+                            {item.status}
+                          </p>
                         )}
                       </td>
 
@@ -369,37 +379,39 @@ const Appoinments = () => {
                   )}
                 </div>
 
-                <div className="form-group">
-                  <label>
-                    Date <span className="required">*</span>
-                  </label>
-                  <input
-                    type="date"
-                    name="date"
-                    value={values.date}
-                    onChange={handleInputChange}
-                  />
-                  {errors.date && (
-                    <small className="field-error">{errors.date}</small>
-                  )}
+                <div class="form-row">
+                  <div className="form-group">
+                    <label>
+                      Date <span className="required">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      value={values.date}
+                      onChange={handleInputChange}
+                    />
+                    {errors.date && (
+                      <small className="field-error">{errors.date}</small>
+                    )}
+                  </div>
+                  <div className="form-group">
+                    <label>
+                      Time <span className="required">*</span>
+                    </label>
+                    <input
+                      type="time"
+                      name="time"
+                      value={values.time}
+                      onChange={handleInputChange}
+                    />
+                    {errors.time && (
+                      <small className="field-error">{errors.time}</small>
+                    )}
+                  </div>
                 </div>
 
-                <div className="form-group">
-                  <label>
-                    Time <span className="required">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    name="time"
-                    value={values.time}
-                    onChange={handleInputChange}
-                  />
-                  {errors.time && (
-                    <small className="field-error">{errors.time}</small>
-                  )}
-                </div>
-
-                <div className="form-group">
+               <div class="form-row">
+                 <div className="form-group">
                   <label>Contact Number</label>
                   <input
                     placeholder="Enter Contact Number"
@@ -408,6 +420,20 @@ const Appoinments = () => {
                     onChange={handleInputChange}
                   />
                 </div>
+                 <div className="form-group">
+                  <label>Select Service</label>
+                  <select  value={values.service}
+                      onChange={handleInputChange} name="service" id="service">
+                    <option value="">Select Service</option>
+                    <option value="Permanent Tattoo">Permanent Tattoo</option>
+                    <option value="Temporary Tattoo">Temporary Tattoo</option>
+                     <option value="Tattoo Removal">Tattoo Removal</option>
+                     <option value="Consultation">Consultation</option>
+                      <option value="Piercing">Piercing</option>
+                 
+                  </select>
+                </div>
+               </div>
 
                 <div className="form-group">
                   <label>Advance Amount</label>
@@ -429,7 +455,7 @@ const Appoinments = () => {
                     <option value="" style={{ color: "black" }}>
                       Select Platform
                     </option>
-                     <option value="Regular" style={{ color: "black" }}>
+                    <option value="Regular" style={{ color: "black" }}>
                       Regular
                     </option>
                     <option value="Walk in" style={{ color: "black" }}>

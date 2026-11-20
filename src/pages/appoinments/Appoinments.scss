@@ -180,7 +180,8 @@
       gap: var(--unit);
       flex-direction: column;
 
-      .form-group {
+    
+        .form-group {
         width: 100%;
         display: flex;
         flex-direction: column;
@@ -254,6 +255,7 @@ input::-webkit-inner-spin-button {
           }
         }
       }
+      
     }
   }
 }
