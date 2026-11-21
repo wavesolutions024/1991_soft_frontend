@@ -28,6 +28,7 @@ const initialFormData = {
   inch: "",
   price: "",
   backDateEntry: "",
+  serviceType:""
 };
 
 const ClientForm = () => {
@@ -148,24 +149,26 @@ const ClientForm = () => {
           setClients();
         }
 
-      
+        const data = response?.data?.data?.map((item, index) => ({
+          id: item.id,
+          date: item?.backDateEntry?.split(" ")[0],
+          name: item.name,
+          number:
+            userData?.role === "Admin"
+              ? item.mobileno
+              : `${item?.mobileno.slice(0, 5)}*****`,
+          clientType: item?.clientType,
+          referallName: item?.referallName,
+          tattoodetails: item?.tattoodetails,
+          tattooArtist: item?.tattooArtist,
+          paymentType: item?.paymentType,
+          inch: item?.inch,
+          price: item?.price,
+          messageStatus: item?.messageStatus,
+          serviceType:item?.serviceType
+        }));
 
-        const data = response?.data?.data?.map((item,index)=>({
-          id:item.id,
-          date:item?.backDateEntry?.split(" ")[0],
-          name:item.name,
-          number: userData?.role === "Admin" ? item.mobileno : `${item?.mobileno.slice(0, 5)}*****`,
-          clientType : item?.clientType,
-          referallName:item?.referallName,
-          tattoodetails:item?.tattoodetails,
-          tattooArtist:item?.tattooArtist,
-          paymentType:item?.paymentType,
-          inch:item?.inch,
-          price:item?.price,
-          messageStatus :item?.messageStatus
-        }))
-
-        setClients(data|| []);
+        setClients(data || []);
 
         setPagination((prev) => ({
           ...prev,
@@ -187,7 +190,6 @@ const ClientForm = () => {
   const getAllArtists = async () => {
     try {
       const response = await api.get(`api/artists/getAllArtists`);
-
 
       setArtists(response?.data?.data);
     } catch (error) {
@@ -471,55 +473,52 @@ const ClientForm = () => {
       title: "Client Type",
       dataIndex: "clientType",
       key: "clientType",
-     
     },
     {
       title: "Referral Person",
       dataIndex: "referallName",
       key: "referallName",
-     
+    },
+     {
+      title: "Service Type",
+      dataIndex: "serviceType",
+      key: "serviceType",
     },
     {
       title: "Tattoo Details",
       dataIndex: "tattoodetails",
       key: "tattoodetails",
-      
     },
     {
       title: "Tattoo Artist",
       dataIndex: "tattooArtist",
       key: "tattooArtist",
-      
     },
     {
       title: "Payment Method",
       dataIndex: "paymentType",
       key: "paymentType",
-      
     },
     {
       title: "Tattoo Inch",
       dataIndex: "inch",
       key: "inch",
-      
     },
     {
       title: "Tattoo Price",
       dataIndex: "price",
       key: "price",
-      
     },
     {
-       title: "Message Status",
+      title: "Message Status",
       dataIndex: "messageStatus",
       key: "messageStatus",
-      
     },
     {
       title: "Action",
       dataIndex: "action",
       key: "action",
-      
+
       render: (_, client) => (
         <div>
           <span
@@ -538,7 +537,6 @@ const ClientForm = () => {
       ),
     },
   ];
-
 
   const handleChange = (paginationConfig) => {
     setPagination((prev) => ({
@@ -585,7 +583,7 @@ const ClientForm = () => {
         )}
         <div class="fil_section">
           <div class="search_input">
-            <label >Search Client</label>
+            <label>Search Client</label>
             <input
               type="search"
               placeholder="Enter Client Name / Number"
@@ -595,7 +593,7 @@ const ClientForm = () => {
           </div>
 
           <div class="drp">
-            <label >VIP/SemiVIP</label>
+            <label>VIP/SemiVIP</label>
             <select
               name="gender"
               value={vipFilter}
@@ -748,9 +746,11 @@ const ClientForm = () => {
         </div> */}
 
         <div class="client-table-wrapper">
-          <Table_Comp columns={columns} data={clients}
-          pagination={pagination}
-          handlechange={handleChange}
+          <Table_Comp
+            columns={columns}
+            data={clients}
+            pagination={pagination}
+            handlechange={handleChange}
           />
         </div>
 
@@ -897,9 +897,7 @@ const ClientForm = () => {
                 <div className="form-section">
                   <h2 className="section-title">Additional Details</h2>
 
-                  <div className="form-row"></div>
-
-                  <div className="form-row full">
+                  <div className="form-row">
                     <div className="form-group">
                       <label>
                         Address
@@ -913,7 +911,50 @@ const ClientForm = () => {
                         onChange={handleInputChange}
                       />
                     </div>
+
+                    <div className="form-group">
+                      <label>
+                        Service Type
+                        <span className="required">*</span>
+                      </label>
+
+                      <select
+                        name="serviceType"
+                        value={formData.serviceType}
+                        onChange={handleInputChange}
+                      >
+                        <option value="" style={{ color: "black" }}>
+                          Select Type
+                        </option>
+
+                        <option
+                          value="Permanent Tattoo"
+                          style={{ color: "black" }}
+                        >
+                          Permanent Tattoo
+                        </option>
+
+                        <option
+                          value="Temporary Tattoo"
+                          style={{ color: "black" }}
+                        >
+                          Temporary Tattoo
+                        </option>
+
+                        <option value="Piercing" style={{ color: "black" }}>
+                          Piercing
+                        </option>
+
+                        <option
+                          value="Tattoo Removal"
+                          style={{ color: "black" }}
+                        >
+                          Tattoo Removal
+                        </option>
+                      </select>
+                    </div>
                   </div>
+
                   <div class="form-row">
                     <div className="form-group">
                       <label>

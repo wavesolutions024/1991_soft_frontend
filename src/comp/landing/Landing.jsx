@@ -78,6 +78,7 @@ const Landing = () => {
             <table className="client-table">
               <thead>
                 <tr>
+                      <th>Date</th>
                   <th>Name</th>
                   {/* <th>Email</th>/ */}
                   <th>Mobile Number</th>
@@ -95,6 +96,7 @@ const Landing = () => {
                 {data && data.length > 0 ? (
                   data.map((item) => (
                     <tr key={item.id}>
+                       <td >{item?.created_at?.split(" ")[0]}</td>
                       <td>{item.name}</td>
                       {/* <td>{item.email}</td> */}
                       <td>{item.mobileNo}</td>

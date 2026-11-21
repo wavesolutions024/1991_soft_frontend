@@ -216,6 +216,7 @@ const Enquiry = () => {
             <table className="client-table">
               <thead>
                 <tr>
+                   <th >Date</th>
                   <th>Name</th>
 
                   <th>Mobile Number</th>
@@ -238,6 +239,7 @@ const Enquiry = () => {
                 {data.length > 0 ? (
                   data.map((item) => (
                     <tr key={item.id}>
+                         <td >{item?.created_at?.split(" ")[0]}</td>
                       <td>{item.name}</td>
                       <td>{item.mobileNo}</td>
                       <td>{item.serviceType}</td>

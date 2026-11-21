@@ -15,7 +15,7 @@
 .artist_table {
   width: 100%;
   padding: 0px 32px;
-  
+  // overflow-x: auto;
  
 
   .client-table-wrapper {
@@ -23,6 +23,7 @@
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border);
     border-radius: 20px;
+   position: relative;
 
     .custom-pagination {
       display: flex;
@@ -32,6 +33,7 @@
       flex-wrap: wrap;
       padding: 14px 18px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
+   
 
       .pagination-summary {
         color: var(--text-muted);
@@ -73,7 +75,7 @@
     }
 
     .client-table {
-      width: 100%;
+      width: 1800px;
       border-collapse: collapse;
       overflow-x: scroll;
       // min-width: 720px;
